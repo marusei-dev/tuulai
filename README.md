@@ -27,9 +27,9 @@ npm run dev            # http://localhost:4321
 Content collections are defined in `src/content.config.ts`. The example `lessons`
 collection reads `.md` / `.mdx` files from `src/content/lessons/`.
 
-## Deployment (Cloudflare Pages)
+## Deployment (Cloudflare Workers, static assets)
 
 - Build command: `npm run build`
-- Output directory: `dist`
+- Deploy command: `npx wrangler deploy` (config in `wrangler.jsonc`)
 - Env var: `NODE_VERSION=22`
-- Production branch: `main`; every other branch and PR gets a preview URL.
+- Production branch: `main`; non-production branches run `npx wrangler versions upload` and get preview URLs.
