@@ -1,8 +1,76 @@
 ---
-// Placeholder home page; real design and content come later.
+// Home page: minimal hero with placeholder copy and shortcuts to each level.
 import BaseLayout from '../layouts/BaseLayout.astro';
+import LogoMark from '../components/LogoMark.astro';
+import { LEVELS, levelSlug } from '../lib/levels';
 ---
 
 <BaseLayout>
-  <h1>Tuulai</h1>
+  <section class="hero">
+    <LogoMark size={96} />
+    <h1>Learn Mongolian with Tuulai</h1>
+    <p class="lead">Grammar, step by step — from M1 to M6.</p>
+    <ul class="levels" aria-label="Түвшин">
+      {
+        LEVELS.map((level) => (
+          <li>
+            <a href={`/${levelSlug(level)}/grammar/`}>{level}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
 </BaseLayout>
+
+<style>
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding-block: 6rem;
+    text-align: center;
+  }
+
+  h1 {
+    margin: 0.5rem 0 0;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--flag-blue);
+  }
+
+  .lead {
+    margin: 0;
+    font-size: 1.15rem;
+    color: var(--color-muted);
+  }
+
+  .levels {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .levels a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 3.5rem;
+    min-height: 2.75rem;
+    border: 2px solid var(--flag-blue);
+    border-radius: 999px;
+    color: var(--flag-blue);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .levels a:hover {
+    background: var(--flag-blue);
+    color: #fff;
+  }
+</style>
