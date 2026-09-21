@@ -12,13 +12,20 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-
-# environment variables
+# environment variables (keep .env.example committed)
 .env
-.env.production
+.env.*
+!.env.example
 
-# macOS-specific files
+# Cloudflare / Wrangler local state
+.wrangler/
+.dev.vars
+
+# caches
+.eslintcache
+.cache/
+
+# OS / editor files
 .DS_Store
-
-# jetbrains setting folder
+Thumbs.db
 .idea/
