@@ -1,5 +1,6 @@
 ---
 import { LEVELS, levelSlug } from '../lib/levels';
+import LogoMark from './LogoMark.astro';
 
 // Highlight the level whose section is currently open, e.g. /m3/grammar/ -> M3.
 const currentSegment = Astro.url.pathname.split('/')[1];
@@ -8,6 +9,7 @@ const currentSegment = Astro.url.pathname.split('/')[1];
 <header class="site-header">
   <div class="container header-inner">
     <a href="/" class="logo">
+      <LogoMark size={40} />
       Tuulai
     </a>
     <nav aria-label="Түвшин">
@@ -57,6 +59,7 @@ const currentSegment = Astro.url.pathname.split('/')[1];
   }
 
   .logo {
+    gap: 0.4rem;
     display: flex;
     align-items: center;
     font-size: 1.75rem;

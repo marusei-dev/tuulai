@@ -1,0 +1,29 @@
+---
+// Tuulai logo mark: two rabbit ears (red and blue) with a gold dot, in Mongolian flag colours.
+interface Props {
+  size?: number;
+}
+
+const { size = 40 } = Astro.props;
+---
+
+<svg width={size} height={size} viewBox="0 0 200 200" aria-hidden="true">
+  <ellipse
+    cx="80"
+    cy="96"
+    rx="26"
+    ry="74"
+    transform="rotate(-14 80 96)"
+    fill="var(--flag-red)"
+  ></ellipse>
+  <ellipse
+    cx="120"
+    cy="96"
+    rx="26"
+    ry="74"
+    transform="rotate(14 120 96)"
+    fill="var(--flag-blue)"
+    opacity="0.92"
+  ></ellipse>
+  <circle cx="100" cy="176" r="13" fill="var(--flag-gold)"></circle>
+</svg>
