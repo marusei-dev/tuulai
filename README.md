@@ -27,9 +27,12 @@ npm run dev            # http://localhost:4321
 Content collections are defined in `src/content.config.ts`. The example `lessons`
 collection reads `.md` / `.mdx` files from `src/content/lessons/`.
 
-## Deployment (Cloudflare Workers, static assets)
+## Deployment (Cloudflare Pages)
 
+Connected to this GitHub repo; every push to `main` deploys to https://tuulai.pages.dev.
+
+- Framework preset: Astro
 - Build command: `npm run build`
-- Deploy command: `npx wrangler deploy` (config in `wrangler.jsonc`)
-- Env var: `NODE_VERSION=22`
-- Production branch: `main`; non-production branches run `npx wrangler versions upload` and get preview URLs.
+- Build output directory: `dist`
+- Env var: `NODE_VERSION=24`
+- Other branches and PRs get preview URLs (`<branch>.tuulai.pages.dev`).
