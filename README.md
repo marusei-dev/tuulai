@@ -4,7 +4,7 @@ Static website built with [Astro](https://astro.build), deployed to Cloudflare P
 
 ## Development
 
-Requires Node 22 (see `.nvmrc`).
+Requires Node 24 (see `.nvmrc`).
 
 ```sh
 npm install
