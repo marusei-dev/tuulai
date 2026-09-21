@@ -1,0 +1,42 @@
+/* Colours of the Mongolian flag, used as the site's main palette. */
+:root {
+  --flag-red: #c4272f;
+  --flag-blue: #015197;
+  --flag-gold: #f9cf02;
+
+  --color-text: #1f2328;
+  --color-muted: #59636e;
+  --color-bg: #ffffff;
+  --color-surface: #f6f8fa;
+  --color-border: #d1d9e0;
+
+  --content-width: 72rem;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  color: var(--flag-blue);
+}
+
+.container {
+  max-width: var(--content-width);
+  margin-inline: auto;
+  padding-inline: 1rem;
+}

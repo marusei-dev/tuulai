@@ -1,0 +1,126 @@
+---
+import { LEVELS, levelSlug } from '../lib/levels';
+
+// Highlight the level whose section is currently open, e.g. /m3/grammar/ -> M3.
+const currentSegment = Astro.url.pathname.split('/')[1];
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="/" class="logo">
+      Tuulai
+    </a>
+    <nav aria-label="Түвшин">
+      <ul class="levels">
+        {LEVELS.map((level) => (
+          <li>
+            <details class="level-menu">
+              <summary class:list={{ active: currentSegment === levelSlug(level) }}>
+                {level}
+              </summary>
+              <div class="dropdown">
+                <a href={`/${levelSlug(level)}/grammar/`}>Grammar List</a>
+              </div>
+            </details>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script>
+  // Keep only one level menu open, and close it when clicking outside.
+  const menus = [...document.querySelectorAll<HTMLDetailsElement>('.level-menu')];
+  menus.forEach((menu) =>
+    menu.addEventListener('toggle', () => {
+      if (menu.open) menus.forEach((other) => other !== menu && (other.open = false));
+    }),
+  );
+  document.addEventListener('click', (event) => {
+    if (!(event.target as Element).closest('.level-menu')) {
+      menus.forEach((menu) => (menu.open = false));
+    }
+  });
+</script>
+
+<style>
+  .site-header {
+    background: var(--color-bg);
+    border-bottom: 6px solid var(--flag-red);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: stretch;
+    gap: 1.5rem;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--flag-blue);
+    text-decoration: none;
+  }
+
+  .levels {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .level-menu {
+    position: relative;
+    height: 100%;
+  }
+
+  summary {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 1.25rem 1.1rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary:hover,
+  .level-menu[open] > summary,
+  summary.active {
+    background: var(--flag-blue);
+    color: #fff;
+  }
+
+  .dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 10;
+    min-width: 11rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-top: 3px solid var(--flag-gold);
+    box-shadow: 0 6px 16px rgb(0 0 0 / 0.12);
+  }
+
+  .dropdown a {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .dropdown a:hover {
+    background: var(--color-surface);
+    color: var(--flag-red);
+  }
+</style>

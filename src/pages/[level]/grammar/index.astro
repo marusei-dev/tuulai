@@ -1,0 +1,46 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { LEVELS, levelSlug, type Level } from '../../../lib/levels';
+
+// One grammar list page per level: /m1/grammar/ … /m6/grammar/.
+export function getStaticPaths() {
+  return LEVELS.map((level) => ({ params: { level: levelSlug(level) }, props: { level } }));
+}
+
+interface Props {
+  level: Level;
+}
+
+const { level } = Astro.props;
+const entries = (
+  await getCollection('grammar', (entry) => entry.data.level === level && !entry.data.draft)
+).sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout title={`${level} Grammar List`}>
+  <h1 class="page-title">{level} Grammar List</h1>
+  {entries.length > 0 ? (
+    <ol>
+      {entries.map((entry) => (
+        <li>{entry.data.title}</li>
+      ))}
+    </ol>
+  ) : (
+    <p class="empty">Одоогоор агуулга алга.</p>
+  )}
+</BaseLayout>
+
+<style>
+  .page-title {
+    margin-block: 2rem 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--flag-blue);
+    color: #fff;
+    text-align: center;
+  }
+
+  .empty {
+    color: var(--color-muted);
+  }
+</style>
