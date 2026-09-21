@@ -11,13 +11,11 @@ import { LEVELS, levelSlug } from '../lib/levels';
     <h1>Learn Mongolian with Tuulai</h1>
     <p class="lead">Grammar, step by step — from M1 to M6.</p>
     <ul class="levels" aria-label="Түвшин">
-      {
-        LEVELS.map((level) => (
-          <li>
-            <a href={`/${levelSlug(level)}/grammar/`}>{level}</a>
-          </li>
-        ))
-      }
+      {LEVELS.map((level) => (
+        <li>
+          <a href={`/${levelSlug(level)}/grammar/`}>{level}</a>
+        </li>
+      ))}
     </ul>
   </section>
 </BaseLayout>
