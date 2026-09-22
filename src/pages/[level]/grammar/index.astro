@@ -1,7 +1,7 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { LEVELS, levelSlug, type Level } from '../../../lib/levels';
+import { getGrammarByLevel, grammarUrl } from '../../../lib/grammar';
 
 // One grammar list page per level: /m1/grammar/ … /m6/grammar/.
 export function getStaticPaths() {
@@ -13,19 +13,40 @@ interface Props {
 }
 
 const { level } = Astro.props;
-const entries = (
-  await getCollection('grammar', (entry) => entry.data.level === level && !entry.data.draft)
-).sort((a, b) => a.data.order - b.data.order);
+const entries = await getGrammarByLevel(level);
 ---
 
 <BaseLayout title={`${level} Grammar List`}>
   <h1 class="page-title">{level} Grammar List</h1>
   {entries.length > 0 ? (
-    <ol>
-      {entries.map((entry) => (
-        <li>{entry.data.title}</li>
-      ))}
-    </ol>
+    <div class="table-wrap">
+      <table class="grammar-table">
+        <thead>
+          <tr>
+            <th scope="col" class="num">
+              #
+            </th>
+            <th scope="col">Grammar Lesson</th>
+            <th scope="col">Дүрэм</th>
+            <th scope="col">Grammar Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          {entries.map((entry, index) => (
+            <tr>
+              <td class="num">{index + 1}</td>
+              <td>
+                <a href={grammarUrl(entry)}>{entry.data.romanization}</a>
+              </td>
+              <td lang="mn">
+                <a href={grammarUrl(entry)}>{entry.data.title}</a>
+              </td>
+              <td>{entry.data.meaning}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   ) : (
     <p class="empty">Одоогоор агуулга алга.</p>
   )}
@@ -40,7 +61,65 @@ const entries = (
     text-align: center;
   }
 
+  /* Wide tables scroll inside this box on narrow screens, never the whole page. */
+  .table-wrap {
+    overflow-x: auto;
+    margin-bottom: 3rem;
+  }
+
+  .grammar-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.05rem;
+  }
+
+  th,
+  td {
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--color-border);
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  th {
+    background: var(--flag-blue);
+    color: #fff;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  tbody tr:nth-child(odd) {
+    background: var(--color-surface);
+  }
+
+  tbody tr:hover {
+    background: #fff8d6;
+  }
+
+  .num {
+    width: 3.5rem;
+    text-align: center;
+  }
+
+  td a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  td a:hover {
+    color: var(--flag-red);
+    text-decoration: underline;
+  }
+
   .empty {
     color: var(--color-muted);
+  }
+
+  @media (max-width: 640px) {
+    th,
+    td {
+      padding: 0.7rem 0.6rem;
+      font-size: 0.95rem;
+    }
   }
 </style>

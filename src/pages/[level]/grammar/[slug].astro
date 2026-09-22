@@ -1,0 +1,96 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { levelSlug } from '../../../lib/levels';
+import { grammarSlug, type GrammarEntry } from '../../../lib/grammar';
+
+// One page per grammar point, e.g. /m1/grammar/bol/.
+export async function getStaticPaths() {
+  const entries = await getCollection('grammar', (entry) => !entry.data.draft);
+  return entries.map((entry) => ({
+    params: { level: levelSlug(entry.data.level), slug: grammarSlug(entry) },
+    props: { entry },
+  }));
+}
+
+interface Props {
+  entry: GrammarEntry;
+}
+
+const { entry } = Astro.props;
+const { title, romanization, meaning, level } = entry.data;
+const { Content } = await render(entry);
+---
+
+<BaseLayout title={`${title} (${romanization})`}>
+  <header class="grammar-header">
+    <p class="kicker">{level} Grammar</p>
+    <h1>
+      <span lang="mn">{title}</span> <span class="romanization">({romanization})</span>
+    </h1>
+  </header>
+
+  <section class="meaning">
+    <h2>Meaning</h2>
+    <p>{meaning}</p>
+    <p>
+      Level: <a href={`/${levelSlug(level)}/grammar/`}>{level}</a>
+    </p>
+  </section>
+
+  <article class="prose">
+    <Content />
+  </article>
+</BaseLayout>
+
+<style>
+  .grammar-header {
+    margin-block: clamp(1rem, 4vw, 2rem) 1.5rem;
+    text-align: center;
+  }
+
+  .kicker {
+    margin: 0;
+    padding: 0.6rem 1rem;
+    background: var(--color-text);
+    color: #fff;
+    font-weight: 700;
+  }
+
+  h1 {
+    margin: 0;
+    padding: 1rem;
+    background: var(--flag-blue);
+    color: #fff;
+    font-size: clamp(1.6rem, 5vw, 2.25rem);
+  }
+
+  .romanization {
+    font-weight: 600;
+  }
+
+  .meaning h2,
+  .prose :global(h2) {
+    display: inline-block;
+    margin: 1.5rem 0 0.5rem;
+    padding-bottom: 0.2rem;
+    border-bottom: 3px solid var(--flag-red);
+    font-size: 1.5rem;
+  }
+
+  .prose {
+    margin-bottom: 3rem;
+    line-height: 1.7;
+  }
+
+  .prose :global(table) {
+    border-collapse: collapse;
+  }
+
+  .prose :global(th),
+  .prose :global(td) {
+    padding: 0.6rem 0.9rem;
+    border: 1px solid var(--color-border);
+    text-align: left;
+  }
+</style>
