@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import GrammarCard from '../../../components/GrammarCard.astro';
 import { levelSlug } from '../../../lib/levels';
 import { grammarSlug, type GrammarEntry } from '../../../lib/grammar';
 
@@ -18,69 +19,51 @@ interface Props {
 }
 
 const { entry } = Astro.props;
-const { title, romanization, meaning, level } = entry.data;
+const { title, romanization, level, examples } = entry.data;
 const { Content } = await render(entry);
 ---
 
 <BaseLayout title={`${title} (${romanization})`}>
-  <header class="grammar-header">
-    <p class="kicker">{level} Grammar</p>
-    <h1>
-      <span lang="mn">{title}</span> <span class="romanization">({romanization})</span>
-    </h1>
-  </header>
-
-  <section class="meaning">
-    <h2>Meaning</h2>
-    <p>{meaning}</p>
-    <p>
-      Level: <a href={`/${levelSlug(level)}/grammar/`}>{level}</a>
-    </p>
-  </section>
+  <GrammarCard entry={entry} />
 
   <article class="prose">
     <Content />
+
+    {examples.length > 0 && (
+      <section>
+        <h2>Example sentences</h2>
+        <ol class="examples">
+          {examples.map((example) => (
+            <li>
+              <p lang="mn" class="mn">
+                {example.mn}
+              </p>
+              <p class="latin">{example.latin}</p>
+              <p>{example.en}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+    )}
+
+    <p class="back">
+      ← <a href={`/${levelSlug(level)}/grammar/`}>{level} Grammar List</a>
+    </p>
   </article>
 </BaseLayout>
 
 <style>
-  .grammar-header {
-    margin-block: clamp(1rem, 4vw, 2rem) 1.5rem;
-    text-align: center;
+  .prose {
+    margin-bottom: 3rem;
+    line-height: 1.7;
   }
 
-  .kicker {
-    margin: 0;
-    padding: 0.6rem 1rem;
-    background: var(--color-text);
-    color: #fff;
-    font-weight: 700;
-  }
-
-  h1 {
-    margin: 0;
-    padding: 1rem;
-    background: var(--flag-blue);
-    color: #fff;
-    font-size: clamp(1.6rem, 5vw, 2.25rem);
-  }
-
-  .romanization {
-    font-weight: 600;
-  }
-
-  .meaning h2,
   .prose :global(h2) {
     display: inline-block;
     margin: 1.5rem 0 0.5rem;
     padding-bottom: 0.2rem;
     border-bottom: 3px solid var(--flag-red);
     font-size: 1.5rem;
-  }
-
-  .prose {
-    margin-bottom: 3rem;
-    line-height: 1.7;
   }
 
   .prose :global(table) {
@@ -92,5 +75,30 @@ const { Content } = await render(entry);
     padding: 0.6rem 0.9rem;
     border: 1px solid var(--color-border);
     text-align: left;
+  }
+
+  .examples {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-left: 1.5rem;
+  }
+
+  .examples p {
+    margin: 0;
+  }
+
+  .mn {
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  .latin {
+    font-style: italic;
+    color: var(--color-muted);
+  }
+
+  .back {
+    margin-top: 2.5rem;
   }
 </style>

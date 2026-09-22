@@ -15,6 +15,20 @@ const grammar = defineCollection({
     // Short English meaning shown in the grammar list.
     meaning: z.string(),
     level: z.enum(LEVELS),
+    // The grammar point in traditional Mongolian script, shown as the card watermark.
+    script: z.string().optional(),
+    // How the pattern is formed, e.g. "Нэр үг + бол".
+    usage: z.array(z.string()).default([]),
+    // Example sentences; the first two also appear on the grammar card.
+    examples: z
+      .array(
+        z.object({
+          mn: z.string(),
+          latin: z.string(),
+          en: z.string(),
+        }),
+      )
+      .default([]),
     // Sort order within the level's grammar list.
     order: z.number().int().default(0),
     // Drafts are excluded from production builds.
