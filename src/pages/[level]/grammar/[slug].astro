@@ -19,11 +19,11 @@ interface Props {
 }
 
 const { entry } = Astro.props;
-const { title, romanization, level, examples } = entry.data;
+const { title, level, examples } = entry.data;
 const { Content } = await render(entry);
 ---
 
-<BaseLayout title={`${title} (${romanization})`}>
+<BaseLayout title={title}>
   <GrammarCard entry={entry} />
 
   <article class="prose">
@@ -38,7 +38,6 @@ const { Content } = await render(entry);
               <p lang="mn" class="mn">
                 {example.mn}
               </p>
-              <p class="latin">{example.latin}</p>
               <p>{example.en}</p>
             </li>
           ))}
@@ -91,11 +90,6 @@ const { Content } = await render(entry);
   .mn {
     font-size: 1.15rem;
     font-weight: 700;
-  }
-
-  .latin {
-    font-style: italic;
-    color: var(--color-muted);
   }
 
   .back {

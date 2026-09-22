@@ -1,6 +1,6 @@
 ---
 // Summary card shown at the top of every grammar page ("A · Цагаан" design):
-// title, romanization, meaning, usage and the first two example sentences.
+// title, meaning, usage and the first two example sentences.
 import LogoMark from './LogoMark.astro';
 import type { GrammarEntry } from '../lib/grammar';
 
@@ -8,7 +8,7 @@ interface Props {
   entry: GrammarEntry;
 }
 
-const { title, romanization, meaning, level, script, usage, examples } = Astro.props.entry.data;
+const { title, meaning, level, script, usage, examples } = Astro.props.entry.data;
 
 // Split text around the grammar point so it can be highlighted, e.g.
 // "Би бол оюутан." -> [{ text: "Би " }, { text: "бол", hit: true }, { text: " оюутан." }].
@@ -43,7 +43,6 @@ const highlight = (text: string) =>
       <h1 id="grammar-title" lang="mn">
         {title}
       </h1>
-      <p class="romanization">{romanization}</p>
     </div>
 
     <div class="body">
@@ -75,7 +74,6 @@ const highlight = (text: string) =>
                   part.hit ? <mark>{part.text}</mark> : part.text,
                 )}
               </p>
-              <p class="latin">{example.latin}</p>
               <p class="en">{example.en}</p>
             </li>
           ))}
@@ -171,13 +169,6 @@ const highlight = (text: string) =>
     color: var(--flag-blue);
   }
 
-  .romanization {
-    margin: 0.25rem 0 0;
-    font-size: clamp(1.5rem, 3.3cqi, 2.5rem);
-    font-weight: 800;
-    color: var(--flag-red);
-  }
-
   .body {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -239,14 +230,9 @@ const highlight = (text: string) =>
     font-weight: 700;
   }
 
-  .latin,
   .en {
     font-size: clamp(0.9rem, 1.4cqi, 1.05rem);
     color: #4b545e;
-  }
-
-  .latin {
-    font-style: italic;
   }
 
   @container (max-width: 640px) {

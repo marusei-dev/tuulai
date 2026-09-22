@@ -26,7 +26,6 @@ const entries = await getGrammarByLevel(level);
             <th scope="col" class="num">
               #
             </th>
-            <th scope="col">Grammar Lesson</th>
             <th scope="col">Дүрэм</th>
             <th scope="col">Grammar Meaning</th>
           </tr>
@@ -35,9 +34,6 @@ const entries = await getGrammarByLevel(level);
           {entries.map((entry, index) => (
             <tr>
               <td class="num">{index + 1}</td>
-              <td>
-                <a href={grammarUrl(entry)}>{entry.data.romanization}</a>
-              </td>
               <td lang="mn">
                 <a href={grammarUrl(entry)}>{entry.data.title}</a>
               </td>

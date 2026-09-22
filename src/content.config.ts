@@ -10,8 +10,6 @@ const grammar = defineCollection({
   schema: z.object({
     // The grammar point in Cyrillic, e.g. "бол".
     title: z.string(),
-    // Latin transliteration, e.g. "bol".
-    romanization: z.string(),
     // Short English meaning shown in the grammar list.
     meaning: z.string(),
     level: z.enum(LEVELS),
@@ -24,7 +22,6 @@ const grammar = defineCollection({
       .array(
         z.object({
           mn: z.string(),
-          latin: z.string(),
           en: z.string(),
         }),
       )
