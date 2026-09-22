@@ -1,0 +1,37 @@
+---
+// Site footer: link to the About page.
+---
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <span>Tuulai</span>
+    <a href="/about/">About</a>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: 4rem;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-muted);
+    font-size: 0.95rem;
+  }
+
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 3.5rem;
+  }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    color: var(--color-muted);
+  }
+
+  a:hover {
+    color: var(--flag-red);
+  }
+</style>
