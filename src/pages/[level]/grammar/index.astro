@@ -36,6 +36,7 @@ const entries = await getGrammarByLevel(level);
               <td class="num">{index + 1}</td>
               <td lang="mn">
                 <a href={grammarUrl(entry)}>{entry.data.title}</a>
+                {entry.data.subtitle && <div class="subtitle">{entry.data.subtitle}</div>}
               </td>
               <td>{entry.data.meaning}</td>
             </tr>
@@ -105,6 +106,11 @@ const entries = await getGrammarByLevel(level);
   td a:hover {
     color: var(--flag-red);
     text-decoration: underline;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+    color: var(--color-muted);
   }
 
   .empty {

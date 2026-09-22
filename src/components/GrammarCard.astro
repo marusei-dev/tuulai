@@ -1,23 +1,16 @@
 ---
 // Summary card shown at the top of every grammar page ("A · Цагаан" design):
-// title, meaning, usage and the first two example sentences.
+// title, subtitle, meaning, usage and the first two example sentences.
 import LogoMark from './LogoMark.astro';
-import type { GrammarEntry } from '../lib/grammar';
+import { highlightParts, type GrammarEntry } from '../lib/grammar';
 
 interface Props {
   entry: GrammarEntry;
 }
 
-const { title, meaning, level, script, usage, examples } = Astro.props.entry.data;
+const { title, subtitle, meaning, level, script, usage, examples } = Astro.props.entry.data;
 
-// Split text around the grammar point so it can be highlighted, e.g.
-// "Би бол оюутан." -> [{ text: "Би " }, { text: "бол", hit: true }, { text: " оюутан." }].
-const escaped = title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const highlight = (text: string) =>
-  text
-    .split(new RegExp(`(${escaped})`, 'g'))
-    .filter(Boolean)
-    .map((part) => ({ text: part, hit: part === title }));
+const highlight = (text: string) => highlightParts(text, title);
 ---
 
 <section class="card-wrap" aria-labelledby="grammar-title">
@@ -43,6 +36,11 @@ const highlight = (text: string) =>
       <h1 id="grammar-title" lang="mn">
         {title}
       </h1>
+      {subtitle && (
+        <p class="subtitle" lang="mn">
+          {subtitle}
+        </p>
+      )}
     </div>
 
     <div class="body">
@@ -167,6 +165,13 @@ const highlight = (text: string) =>
     line-height: 1;
     letter-spacing: -0.02em;
     color: var(--flag-blue);
+  }
+
+  .subtitle {
+    margin: 0.5rem 0 0;
+    font-size: clamp(1.25rem, 2.8cqi, 2.1rem);
+    font-weight: 800;
+    color: var(--flag-red);
   }
 
   .body {

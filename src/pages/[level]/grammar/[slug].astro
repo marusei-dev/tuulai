@@ -1,9 +1,9 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { getCollection, getEntries, render } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import GrammarCard from '../../../components/GrammarCard.astro';
 import { levelSlug } from '../../../lib/levels';
-import { grammarSlug, type GrammarEntry } from '../../../lib/grammar';
+import { grammarSlug, grammarUrl, highlightParts, type GrammarEntry } from '../../../lib/grammar';
 
 // One page per grammar point, e.g. /m1/grammar/bol/.
 export async function getStaticPaths() {
@@ -19,11 +19,12 @@ interface Props {
 }
 
 const { entry } = Astro.props;
-const { title, level, examples } = entry.data;
+const { title, subtitle, level, examples, related } = entry.data;
+const relatedEntries = (await getEntries(related)).filter((other) => !other.data.draft);
 const { Content } = await render(entry);
 ---
 
-<BaseLayout title={title}>
+<BaseLayout title={subtitle ? `${title} · ${subtitle}` : title}>
   <GrammarCard entry={entry} />
 
   <article class="prose">
@@ -36,12 +37,30 @@ const { Content } = await render(entry);
           {examples.map((example) => (
             <li>
               <p lang="mn" class="mn">
-                {example.mn}
+                {highlightParts(example.mn, title).map((part) =>
+                  part.hit ? <mark>{part.text}</mark> : part.text,
+                )}
               </p>
               <p>{example.en}</p>
             </li>
           ))}
         </ol>
+      </section>
+    )}
+
+    {relatedEntries.length > 0 && (
+      <section>
+        <h2>Бусад түвшинд</h2>
+        <ul>
+          {relatedEntries.map((other) => (
+            <li>
+              <a href={grammarUrl(other)}>
+                {other.data.level} · {other.data.title}
+              </a>{' '}
+              — {other.data.meaning}
+            </li>
+          ))}
+        </ul>
       </section>
     )}
 
@@ -90,6 +109,12 @@ const { Content } = await render(entry);
   .mn {
     font-size: 1.15rem;
     font-weight: 700;
+  }
+
+  mark {
+    background: none;
+    color: var(--flag-red);
+    font-weight: 900;
   }
 
   .back {
