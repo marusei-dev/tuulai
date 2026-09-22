@@ -26,7 +26,7 @@ import { LEVELS, levelSlug } from '../lib/levels';
     flex-direction: column;
     align-items: center;
     gap: 1rem;
-    padding-block: 6rem;
+    padding-block: clamp(3rem, 12vw, 6rem);
     text-align: center;
   }
 
@@ -70,5 +70,15 @@ import { LEVELS, levelSlug } from '../lib/levels';
   .levels a:hover {
     background: var(--flag-blue);
     color: #fff;
+  }
+
+  /* Phones: an even 3 × 2 grid instead of a ragged 5 + 1 wrap. */
+  @media (max-width: 640px) {
+    .levels {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      width: 100%;
+      max-width: 18rem;
+    }
   }
 </style>

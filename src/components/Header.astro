@@ -126,4 +126,49 @@ const currentSegment = Astro.url.pathname.split('/')[1];
     background: var(--color-surface);
     color: var(--flag-red);
   }
+
+  /* Phones: logo on its own row, the six levels share the full width below it. */
+  @media (max-width: 640px) {
+    .header-inner {
+      flex-direction: column;
+      gap: 0;
+      padding-inline: 0;
+    }
+
+    .logo {
+      padding: 0.6rem 1rem;
+      font-size: 1.5rem;
+    }
+
+    nav {
+      position: relative;
+    }
+
+    .levels {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    /* Anchor dropdowns to the nav so they never overflow the screen edge. */
+    .level-menu {
+      position: static;
+    }
+
+    summary {
+      justify-content: center;
+      min-height: 2.75rem;
+      padding: 0.75rem 0;
+      font-size: 1rem;
+    }
+
+    .dropdown {
+      right: 0;
+      min-width: 0;
+    }
+
+    .dropdown a {
+      padding: 0.9rem 1rem;
+      text-align: center;
+    }
+  }
 </style>
