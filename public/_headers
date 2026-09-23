@@ -1,0 +1,14 @@
+# Security headers for every response, applied by Cloudflare Pages.
+# https://developers.cloudflare.com/pages/configuration/headers/
+#
+# The site loads nothing from other domains, so the Content-Security-Policy only
+# allows 'self'. When Supabase is added, extend connect-src with the project URL,
+# e.g. connect-src 'self' https://<project>.supabase.co
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin
+  Strict-Transport-Security: max-age=31536000; includeSubDomains

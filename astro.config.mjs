@@ -9,4 +9,8 @@ export default defineConfig({
   // Fully static build; Cloudflare Pages serves the generated `dist/` folder.
   output: 'static',
   integrations: [mdx()],
+  // Emit every script and stylesheet as a separate file (no inline <script>/<style>),
+  // so the Content-Security-Policy in public/_headers can allow only 'self'.
+  build: { inlineStylesheets: 'never' },
+  vite: { build: { assetsInlineLimit: 0 } },
 });
