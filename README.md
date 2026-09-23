@@ -24,8 +24,22 @@ npm run dev            # http://localhost:4321
 
 ## Content
 
-Content collections are defined in `src/content.config.ts`. The example `lessons`
-collection reads `.md` / `.mdx` files from `src/content/lessons/`.
+Content collections are defined in `src/content.config.ts`. Each grammar point has two parts:
+
+- **Data** – `src/content/grammar/<level>/<slug>.yaml`: the Mongolian title, usage and
+  example sentences, plus the meaning and example translations in every site language
+  (`en`, `ru`). Wrap text in `**double asterisks**` to highlight it on the card.
+- **Explanation** – `src/content/explanations/<locale>/<level>/<slug>.md`: the longer
+  explanation, one Markdown file per language. A missing translation falls back to English.
+
+For example `m1/bol.yaml` + `explanations/en/m1/bol.md` + `explanations/ru/m1/bol.md`
+become `/m1/grammar/bol/` and `/ru/m1/grammar/bol/`.
+
+## Languages
+
+English is served at the site root and Russian under `/ru/`. Languages are listed in
+`src/i18n/locales.ts` and interface strings live in `src/i18n/ui.ts`. Pages in
+`src/pages/` are thin per-language wrappers around the shared views in `src/views/`.
 
 ## Deployment (Cloudflare Pages)
 
