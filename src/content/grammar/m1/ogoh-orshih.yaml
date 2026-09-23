@@ -1,6 +1,8 @@
 title: -д / -т
 subtitle: Өгөх-орших тийн ялгал
-meaning: 'dative-locative case: to, for; in, at (place)'
+meaning:
+  en: 'dative-locative case: to, for; in, at (place)'
+  ru: 'дательно-местный падеж: кому?, где?'
 level: M1
 order: 4
 usage:
@@ -8,7 +10,10 @@ usage:
 examples:
   - mn: Би гэр**т** байна.
     en: I am at home.
+    ru: 'Я дома.'
   - mn: Би ах**ад** ном өглөө.
     en: I gave a book to my older brother.
+    ru: 'Я дал книгу старшему брату.'
   - mn: Бид Улаанбаатар**т** амьдардаг.
     en: We live in Ulaanbaatar.
+    ru: 'Мы живём в Улан-Баторе.'

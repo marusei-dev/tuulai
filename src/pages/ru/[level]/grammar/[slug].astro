@@ -1,0 +1,10 @@
+---
+import GrammarView from '../../../../views/GrammarView.astro';
+import { grammarPaths, type GrammarEntry } from '../../../../lib/grammar';
+
+export const getStaticPaths = grammarPaths;
+
+const { entry } = Astro.props as { entry: GrammarEntry };
+---
+
+<GrammarView entry={entry} locale="ru" />

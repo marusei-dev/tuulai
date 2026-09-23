@@ -1,6 +1,8 @@
 title: -тай
 subtitle: Хамтрах тийн ялгал
-meaning: 'comitative case: with (together), having'
+meaning:
+  en: 'comitative case: with (together), having'
+  ru: 'совместный падеж: с кем?, с чем?, имеющий'
 level: M1
 order: 8
 usage:
@@ -8,7 +10,10 @@ usage:
 examples:
   - mn: Би найз**тай**гаа кино үзсэн.
     en: I watched a film with my friend.
+    ru: 'Я смотрел фильм со своим другом.'
   - mn: Тэр хоёр хүүхэд**тэй**.
     en: She has two children.
+    ru: 'У неё двое детей.'
   - mn: Сүү**тэй** цай уух уу?
     en: Would you like tea with milk?
+    ru: 'Будете чай с молоком?'

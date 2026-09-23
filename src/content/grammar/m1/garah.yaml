@@ -1,6 +1,8 @@
 title: -аас
 subtitle: Гарах тийн ялгал
-meaning: 'ablative case: from'
+meaning:
+  en: 'ablative case: from'
+  ru: 'исходный падеж: откуда?, от кого?'
 level: M1
 order: 6
 usage:
@@ -8,7 +10,10 @@ usage:
 examples:
   - mn: Би Монгол**оос** ирсэн.
     en: I came from Mongolia.
+    ru: 'Я приехал из Монголии.'
   - mn: Тэр ажл**аас** гарлаа.
     en: She left work.
+    ru: 'Она ушла с работы.'
   - mn: Эмч**ээс** асуугаарай.
     en: Please ask the doctor.
+    ru: 'Спросите у врача.'

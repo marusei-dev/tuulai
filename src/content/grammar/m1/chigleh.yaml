@@ -1,6 +1,8 @@
 title: руу
 subtitle: Чиглэх тийн ялгал
-meaning: 'directive case: towards, to (a place)'
+meaning:
+  en: 'directive case: towards, to (a place)'
+  ru: 'направительный падеж: куда?'
 level: M1
 order: 9
 usage:
@@ -8,7 +10,10 @@ usage:
 examples:
   - mn: Бид хот **руу** явлаа.
     en: We went to the city.
+    ru: 'Мы поехали в город.'
   - mn: Тэр гэр **лүү** гүйлээ.
     en: He ran home.
+    ru: 'Он побежал домой.'
   - mn: Маргааш Улаанбаатар **луу** нисэнэ.
     en: Tomorrow I fly to Ulaanbaatar.
+    ru: 'Завтра я лечу в Улан-Батор.'

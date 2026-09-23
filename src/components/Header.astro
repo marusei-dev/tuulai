@@ -1,18 +1,29 @@
 ---
 import { LEVELS, levelSlug } from '../lib/levels';
+import { LOCALES, localePath, splitLocale, type Locale } from '../i18n/locales';
+import { useTranslations } from '../i18n/ui';
 import LogoMark from './LogoMark.astro';
 
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+
+// Locale-free path of the current page, e.g. /ru/m3/grammar/ -> /m3/grammar/.
+const { path } = splitLocale(Astro.url.pathname);
 // Highlight the level whose section is currently open, e.g. /m3/grammar/ -> M3.
-const currentSegment = Astro.url.pathname.split('/')[1];
+const currentSegment = path.split('/')[1];
 ---
 
 <header class="site-header">
   <div class="container header-inner">
-    <a href="/" class="logo">
+    <a href={localePath(locale, '/')} class="logo">
       <LogoMark size={40} />
       Tuulai
     </a>
-    <nav aria-label="Түвшин">
+    <nav class="levels-nav" aria-label={t('nav.levels')}>
       <ul class="levels">
         {LEVELS.map((level) => (
           <li>
@@ -21,9 +32,27 @@ const currentSegment = Astro.url.pathname.split('/')[1];
                 {level}
               </summary>
               <div class="dropdown">
-                <a href={`/${levelSlug(level)}/grammar/`}>Grammar List</a>
+                <a href={localePath(locale, `/${levelSlug(level)}/grammar/`)}>
+                  {t('nav.grammarList')}
+                </a>
               </div>
             </details>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <nav class="lang-nav" aria-label={t('nav.language')}>
+      <ul class="langs">
+        {LOCALES.map((l) => (
+          <li>
+            <a
+              href={localePath(l, path)}
+              hreflang={l}
+              lang={l}
+              aria-current={l === locale ? 'true' : undefined}
+            >
+              {l.toUpperCase()}
+            </a>
           </li>
         ))}
       </ul>
@@ -53,27 +82,45 @@ const currentSegment = Astro.url.pathname.split('/')[1];
   }
 
   .header-inner {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: 'logo levels langs';
     align-items: stretch;
-    gap: 1.5rem;
+    column-gap: 1.5rem;
   }
 
   .logo {
-    gap: 0.4rem;
+    grid-area: logo;
     display: flex;
     align-items: center;
+    gap: 0.4rem;
     font-size: 1.75rem;
     font-weight: 800;
     color: var(--flag-blue);
     text-decoration: none;
   }
 
-  .levels {
+  .levels-nav {
+    grid-area: levels;
+  }
+
+  .lang-nav {
+    grid-area: langs;
     display: flex;
-    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .levels,
+  .langs {
+    display: flex;
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  .levels {
+    flex-wrap: wrap;
+    height: 100%;
   }
 
   .level-menu {
@@ -127,11 +174,38 @@ const currentSegment = Astro.url.pathname.split('/')[1];
     color: var(--flag-red);
   }
 
-  /* Phones: logo on its own row, the six levels share the full width below it. */
+  .langs {
+    gap: 0.25rem;
+  }
+
+  .langs a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    border-radius: 6px;
+    color: var(--color-muted);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .langs a:hover {
+    color: var(--flag-red);
+  }
+
+  .langs a[aria-current='true'] {
+    color: var(--flag-blue);
+    box-shadow: inset 0 -3px 0 var(--flag-gold);
+  }
+
+  /* Phones: logo and languages share the top row, the six levels fill the row below. */
   @media (max-width: 640px) {
     .header-inner {
-      flex-direction: column;
-      gap: 0;
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+        'logo langs'
+        'levels levels';
       padding-inline: 0;
     }
 
@@ -140,7 +214,11 @@ const currentSegment = Astro.url.pathname.split('/')[1];
       font-size: 1.5rem;
     }
 
-    nav {
+    .lang-nav {
+      padding-right: 0.5rem;
+    }
+
+    .levels-nav {
       position: relative;
     }
 

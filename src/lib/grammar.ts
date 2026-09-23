@@ -1,13 +1,30 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { levelSlug, type Level } from './levels';
+import { LEVELS, levelSlug, type Level } from './levels';
+import { localePath, type Locale } from '../i18n/locales';
 
 export type GrammarEntry = CollectionEntry<'grammar'>;
 
 // Last path segment of the entry id, e.g. "m1/bol" -> "bol".
 export const grammarSlug = (entry: GrammarEntry) => entry.id.split('/').pop() ?? entry.id;
 
-export const grammarUrl = (entry: GrammarEntry) =>
-  `/${levelSlug(entry.data.level)}/grammar/${grammarSlug(entry)}/`;
+export const grammarUrl = (entry: GrammarEntry, locale: Locale) =>
+  localePath(locale, `/${levelSlug(entry.data.level)}/grammar/${grammarSlug(entry)}/`);
+
+export const grammarListUrl = (level: Level, locale: Locale) =>
+  localePath(locale, `/${levelSlug(level)}/grammar/`);
+
+// getStaticPaths() for the grammar list pages: /m1/grammar/ … /m6/grammar/.
+export const levelPaths = () =>
+  LEVELS.map((level) => ({ params: { level: levelSlug(level) }, props: { level } }));
+
+// getStaticPaths() for the grammar point pages, e.g. /m1/grammar/bol/.
+export async function grammarPaths() {
+  const entries = await getCollection('grammar', (entry) => !entry.data.draft);
+  return entries.map((entry) => ({
+    params: { level: levelSlug(entry.data.level), slug: grammarSlug(entry) },
+    props: { entry },
+  }));
+}
 
 export interface TextPart {
   text: string;

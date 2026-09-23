@@ -1,6 +1,8 @@
 title: -ыг / -ийг
 subtitle: Заах тийн ялгал
-meaning: 'accusative case: marks a definite direct object (the ~)'
+meaning:
+  en: 'accusative case: marks a definite direct object (the ~)'
+  ru: 'винительный падеж: определённое прямое дополнение'
 level: M1
 order: 5
 usage:
@@ -8,7 +10,10 @@ usage:
 examples:
   - mn: Би энэ ном**ыг** уншсан.
     en: I read this book.
+    ru: 'Я прочитал эту книгу.'
   - mn: Чи багш**ийг** таних уу?
     en: Do you know the teacher?
+    ru: 'Ты знаешь учителя?'
   - mn: Тэр нохой**г** харсан.
     en: He saw the dog.
+    ru: 'Он видел собаку.'

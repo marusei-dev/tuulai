@@ -1,6 +1,8 @@
 title: Ø
 subtitle: Нэрлэх тийн ялгал
-meaning: 'nominative case: the subject of a sentence (no suffix)'
+meaning:
+  en: 'nominative case: the subject of a sentence (no suffix)'
+  ru: 'именительный падеж: подлежащее (без суффикса)'
 level: M1
 order: 2
 usage:
@@ -8,7 +10,10 @@ usage:
 examples:
   - mn: '**Дорж** ирлээ.'
     en: Dorj has come.
+    ru: 'Дорж пришёл.'
   - mn: '**Нохой** хуцаж байна.'
     en: The dog is barking.
+    ru: 'Собака лает.'
   - mn: '**Энэ** бол ном.'
     en: This is a book.
+    ru: 'Это книга.'

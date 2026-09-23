@@ -1,6 +1,8 @@
 title: -ын / -ийн
 subtitle: Харьяалах тийн ялгал
-meaning: "genitive case: of, ~'s (possession)"
+meaning:
+  en: "genitive case: of, ~'s (possession)"
+  ru: 'родительный падеж: чей?, принадлежность'
 level: M1
 order: 3
 usage:
@@ -8,7 +10,10 @@ usage:
 examples:
   - mn: Энэ бол багш**ийн** ном.
     en: This is the teacher's book.
+    ru: 'Это книга учителя.'
   - mn: Дорж**ийн** ээж эмч.
     en: Dorj's mother is a doctor.
+    ru: 'Мама Доржа — врач.'
   - mn: Бат**ын** гэр хаана байна вэ?
     en: Where is Bat's home?
+    ru: 'Где дом Бата?'

@@ -1,6 +1,8 @@
 title: -аар
 subtitle: Үйлдэх тийн ялгал
-meaning: 'instrumental case: by, with (a tool), in (a language)'
+meaning:
+  en: 'instrumental case: by, with (a tool), in (a language)'
+  ru: 'орудный падеж: чем?, на чём?, на каком языке?'
 level: M1
 order: 7
 usage:
@@ -8,7 +10,10 @@ usage:
 examples:
   - mn: Би автобус**аар** явна.
     en: I will go by bus.
+    ru: 'Я поеду на автобусе.'
   - mn: Бид монгол**оор** ярьдаг.
     en: We speak in Mongolian.
+    ru: 'Мы говорим по-монгольски.'
   - mn: Үзг**ээр** бичээрэй.
     en: Please write with a pen.
+    ru: 'Пишите ручкой.'

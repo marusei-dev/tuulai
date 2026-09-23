@@ -1,11 +1,20 @@
 ---
 // Site footer: link to the About page.
+import { localePath, type Locale } from '../i18n/locales';
+import { useTranslations } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
 ---
 
 <footer class="site-footer">
   <div class="container footer-inner">
     <span>Tuulai</span>
-    <a href="/about/">About</a>
+    <a href={localePath(locale, '/about/')}>{t('footer.about')}</a>
   </div>
 </footer>
 

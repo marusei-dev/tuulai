@@ -1,0 +1,128 @@
+---
+// Grammar list of one level as a numbered table.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import type { Level } from '../lib/levels';
+import { getGrammarByLevel, grammarUrl } from '../lib/grammar';
+import type { Locale } from '../i18n/locales';
+import { useTranslations } from '../i18n/ui';
+
+interface Props {
+  level: Level;
+  locale: Locale;
+}
+
+const { level, locale } = Astro.props;
+const t = useTranslations(locale);
+const entries = await getGrammarByLevel(level);
+const title = t('list.title', { level });
+---
+
+<BaseLayout title={title} locale={locale}>
+  <h1 class="page-title">{title}</h1>
+  {entries.length > 0 ? (
+    <div class="table-wrap">
+      <table class="grammar-table">
+        <thead>
+          <tr>
+            <th scope="col" class="num">
+              #
+            </th>
+            <th scope="col">Дүрэм</th>
+            <th scope="col">{t('list.meaning')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {entries.map((entry, index) => (
+            <tr>
+              <td class="num">{index + 1}</td>
+              <td lang="mn">
+                <a href={grammarUrl(entry, locale)}>{entry.data.title}</a>
+                {entry.data.subtitle && <div class="subtitle">{entry.data.subtitle}</div>}
+              </td>
+              <td>{entry.data.meaning[locale]}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  ) : (
+    <p class="empty">{t('list.empty')}</p>
+  )}
+</BaseLayout>
+
+<style>
+  .page-title {
+    margin-block: clamp(1rem, 4vw, 2rem) 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--flag-blue);
+    color: #fff;
+    text-align: center;
+  }
+
+  /* Wide tables scroll inside this box on narrow screens, never the whole page. */
+  .table-wrap {
+    overflow-x: auto;
+    margin-bottom: 3rem;
+  }
+
+  .grammar-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.05rem;
+  }
+
+  th,
+  td {
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--color-border);
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  th {
+    background: var(--flag-blue);
+    color: #fff;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  tbody tr:nth-child(odd) {
+    background: var(--color-surface);
+  }
+
+  tbody tr:hover {
+    background: #fff8d6;
+  }
+
+  .num {
+    width: 3.5rem;
+    text-align: center;
+  }
+
+  td a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  td a:hover {
+    color: var(--flag-red);
+    text-decoration: underline;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+    color: var(--color-muted);
+  }
+
+  .empty {
+    color: var(--color-muted);
+  }
+
+  @media (max-width: 640px) {
+    th,
+    td {
+      padding: 0.7rem 0.6rem;
+      font-size: 0.95rem;
+    }
+  }
+</style>

@@ -1,14 +1,20 @@
 ---
 // Summary card shown at the top of every grammar page ("A · Цагаан" design):
-// title, subtitle, meaning, usage and the first two example sentences.
+// title, subtitle, meaning, usage and the first two example sentences, with the
+// meaning and translations in the reader's language.
 import LogoMark from './LogoMark.astro';
 import { highlightParts, type GrammarEntry } from '../lib/grammar';
+import type { Locale } from '../i18n/locales';
+import { useTranslations } from '../i18n/ui';
 
 interface Props {
   entry: GrammarEntry;
+  locale: Locale;
 }
 
-const { title, subtitle, meaning, level, script, usage, examples } = Astro.props.entry.data;
+const { entry, locale } = Astro.props;
+const { title, subtitle, meaning, level, script, usage, examples } = entry.data;
+const t = useTranslations(locale);
 
 const highlight = (text: string) => highlightParts(text, title);
 ---
@@ -25,7 +31,7 @@ const highlight = (text: string) => highlightParts(text, title);
       <div class="brand">
         <LogoMark size={48} />
         <div>
-          <div class="brand-sub">Learn Mongolian at</div>
+          <div class="brand-sub">{t('card.learnAt')}</div>
           <div class="brand-name">tuulai.pages.dev</div>
         </div>
       </div>
@@ -47,7 +53,7 @@ const highlight = (text: string) => highlightParts(text, title);
       <dl class="facts">
         <div class="fact">
           <dt>Утга</dt>
-          <dd>{meaning}</dd>
+          <dd>{meaning[locale]}</dd>
         </div>
         {usage.length > 0 && (
           <div class="fact">
@@ -72,7 +78,7 @@ const highlight = (text: string) => highlightParts(text, title);
                   part.hit ? <mark>{part.text}</mark> : part.text,
                 )}
               </p>
-              <p class="en">{example.en}</p>
+              <p class="translation">{example[locale]}</p>
             </li>
           ))}
         </ul>
@@ -235,7 +241,7 @@ const highlight = (text: string) => highlightParts(text, title);
     font-weight: 700;
   }
 
-  .en {
+  .translation {
     font-size: clamp(0.9rem, 1.4cqi, 1.05rem);
     color: #4b545e;
   }

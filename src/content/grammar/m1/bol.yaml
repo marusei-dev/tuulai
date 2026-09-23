@@ -1,5 +1,7 @@
 title: бол
-meaning: 'links two nouns: A is B'
+meaning:
+  en: 'links two nouns: A is B'
+  ru: 'связывает два существительных: A есть B'
 level: M1
 order: 1
 script: ᠪᠣᠯ
@@ -8,5 +10,7 @@ usage:
 examples:
   - mn: Би бол оюутан.
     en: I am a student.
+    ru: 'Я студент.'
   - mn: Энэ бол ном.
     en: This is a book.
+    ru: 'Это книга.'

@@ -3,6 +3,12 @@ import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { LEVELS } from './lib/levels';
 
+// Text in every site language (see src/i18n/locales.ts).
+const translated = z.object({
+  en: z.string(),
+  ru: z.string(),
+});
+
 // Grammar points: one YAML file per entry with the Mongolian data, grouped by level
 // folder, e.g. src/content/grammar/m1/bol.yaml -> /m1/grammar/bol/.
 const grammar = defineCollection({
@@ -12,8 +18,8 @@ const grammar = defineCollection({
     title: z.string(),
     // Optional name shown under the title, e.g. "Харьяалах тийн ялгал".
     subtitle: z.string().optional(),
-    // Short English meaning shown in the grammar list.
-    meaning: z.string(),
+    // Short meaning shown on the card and in the grammar list.
+    meaning: translated,
     level: z.enum(LEVELS),
     // The grammar point in traditional Mongolian script, shown as the card watermark.
     script: z.string().optional(),
@@ -27,6 +33,7 @@ const grammar = defineCollection({
         z.object({
           mn: z.string(),
           en: z.string(),
+          ru: z.string(),
         }),
       )
       .default([]),
