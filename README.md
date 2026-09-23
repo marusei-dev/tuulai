@@ -24,16 +24,29 @@ npm run dev            # http://localhost:4321
 
 ## Content
 
-Content collections are defined in `src/content.config.ts`. Each grammar point has two parts:
+Content collections are defined in `src/content.config.ts`. Each grammar point is one
+YAML file, `src/content/grammar/<level>/<slug>.yaml`, holding the Mongolian title, usage
+and example sentences, the meaning and translations in every site language (`en`, `ru`)
+and a Markdown explanation per language. Wrap text in `**double asterisks**` to highlight
+it on the card. A missing Russian explanation falls back to English.
 
-- **Data** – `src/content/grammar/<level>/<slug>.yaml`: the Mongolian title, usage and
-  example sentences, plus the meaning and example translations in every site language
-  (`en`, `ru`). Wrap text in `**double asterisks**` to highlight it on the card.
-- **Explanation** – `src/content/explanations/<locale>/<level>/<slug>.md`: the longer
-  explanation, one Markdown file per language. A missing translation falls back to English.
+For example `m1/bol.yaml` becomes `/m1/grammar/bol/` and `/ru/m1/grammar/bol/`. A file
+with the same name in another level folder (`m3/bol.yaml`) is the same form taught at
+that level, and the pages link to each other automatically.
 
-For example `m1/bol.yaml` + `explanations/en/m1/bol.md` + `explanations/ru/m1/bol.md`
-become `/m1/grammar/bol/` and `/ru/m1/grammar/bol/`.
+## Admin
+
+The admin at `/admin/` is [Sveltia CMS](https://sveltiacms.app/) (configured in
+`src/admin/config.ts`). Saving an entry commits its YAML file to GitHub, and Cloudflare
+deploys the new page a minute or two later. Only GitHub users with write access to this
+repository can save.
+
+To sign in, choose **Sign In Using Access Token** and paste a GitHub
+[fine-grained personal access token](https://github.com/settings/personal-access-tokens/new)
+limited to this repository, with **Contents: Read and write** permission. The token is
+kept in that browser only. ("Sign In with GitHub" needs an OAuth app and is not set up.)
+
+When a field is added to the grammar schema, add it to the admin config too.
 
 ## Languages
 
