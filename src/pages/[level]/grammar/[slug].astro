@@ -1,5 +1,5 @@
 ---
-import { getCollection, getEntries, render } from 'astro:content';
+import { getCollection, getEntries, getEntry, render } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import GrammarCard from '../../../components/GrammarCard.astro';
 import { levelSlug } from '../../../lib/levels';
@@ -21,14 +21,15 @@ interface Props {
 const { entry } = Astro.props;
 const { title, subtitle, level, examples, related } = entry.data;
 const relatedEntries = (await getEntries(related)).filter((other) => !other.data.draft);
-const { Content } = await render(entry);
+const explanation = await getEntry('explanations', `en/${entry.id}`);
+const { Content } = explanation ? await render(explanation) : { Content: null };
 ---
 
 <BaseLayout title={subtitle ? `${title} · ${subtitle}` : title}>
   <GrammarCard entry={entry} />
 
   <article class="prose">
-    <Content />
+    {Content && <Content />}
 
     {examples.length > 0 && (
       <section>

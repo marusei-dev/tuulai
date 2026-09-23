@@ -1,18 +1,3 @@
----
-title: бол
-meaning: 'links two nouns: A is B'
-level: M1
-order: 1
-script: ᠪᠣᠯ
-usage:
-  - Нэр үг + бол + нэр үг
-examples:
-  - mn: Би бол оюутан.
-    en: I am a student.
-  - mn: Энэ бол ном.
-    en: This is a book.
----
-
 ## How to use
 
 | Хэлбэр                    | Жишээ              |

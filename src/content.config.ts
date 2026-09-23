@@ -3,10 +3,10 @@ import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { LEVELS } from './lib/levels';
 
-// Grammar points: one Markdown/MDX file per entry, grouped by level folder,
-// e.g. src/content/grammar/m1/bol.md -> /m1/grammar/bol/.
+// Grammar points: one YAML file per entry with the Mongolian data, grouped by level
+// folder, e.g. src/content/grammar/m1/bol.yaml -> /m1/grammar/bol/.
 const grammar = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/grammar' }),
+  loader: glob({ pattern: '**/*.yaml', base: './src/content/grammar' }),
   schema: z.object({
     // The grammar point in Cyrillic, e.g. "бол" or a suffix such as "-ын / -ийн".
     title: z.string(),
@@ -39,4 +39,10 @@ const grammar = defineCollection({
   }),
 });
 
-export const collections = { grammar };
+// Longer explanation of each grammar point, one Markdown file per language, with the
+// same path as its grammar entry: src/content/explanations/en/m1/bol.md.
+const explanations = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/explanations' }),
+});
+
+export const collections = { grammar, explanations };

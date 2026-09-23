@@ -1,20 +1,3 @@
----
-title: -д / -т
-subtitle: Өгөх-орших тийн ялгал
-meaning: 'dative-locative case: to, for; in, at (place)'
-level: M1
-order: 4
-usage:
-  - Нэр үг + **-д / -т**
-examples:
-  - mn: Би гэр**т** байна.
-    en: I am at home.
-  - mn: Би ах**ад** ном өглөө.
-    en: I gave a book to my older brother.
-  - mn: Бид Улаанбаатар**т** амьдардаг.
-    en: We live in Ulaanbaatar.
----
-
 ## How to use
 
 At M1 this case has two main jobs:

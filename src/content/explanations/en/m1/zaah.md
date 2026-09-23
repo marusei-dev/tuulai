@@ -1,20 +1,3 @@
----
-title: -ыг / -ийг
-subtitle: Заах тийн ялгал
-meaning: 'accusative case: marks a definite direct object (the ~)'
-level: M1
-order: 5
-usage:
-  - Нэр үг + **-ыг / -ийг / -г** + үйл үг
-examples:
-  - mn: Би энэ ном**ыг** уншсан.
-    en: I read this book.
-  - mn: Чи багш**ийг** таних уу?
-    en: Do you know the teacher?
-  - mn: Тэр нохой**г** харсан.
-    en: He saw the dog.
----
-
 ## How to use
 
 The accusative marks the **object** of a verb – the thing or person the action is

@@ -1,20 +1,3 @@
----
-title: -ын / -ийн
-subtitle: Харьяалах тийн ялгал
-meaning: "genitive case: of, ~'s (possession)"
-level: M1
-order: 3
-usage:
-  - Нэр үг + **-ын / -ийн** + нэр үг
-examples:
-  - mn: Энэ бол багш**ийн** ном.
-    en: This is the teacher's book.
-  - mn: Дорж**ийн** ээж эмч.
-    en: Dorj's mother is a doctor.
-  - mn: Бат**ын** гэр хаана байна вэ?
-    en: Where is Bat's home?
----
-
 ## How to use
 
 The genitive shows **whose** something is. It answers the question **хэний?** (whose?).

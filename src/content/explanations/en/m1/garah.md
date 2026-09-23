@@ -1,20 +1,3 @@
----
-title: -аас
-subtitle: Гарах тийн ялгал
-meaning: 'ablative case: from'
-level: M1
-order: 6
-usage:
-  - Нэр үг + **-аас / -ээс / -оос / -өөс**
-examples:
-  - mn: Би Монгол**оос** ирсэн.
-    en: I came from Mongolia.
-  - mn: Тэр ажл**аас** гарлаа.
-    en: She left work.
-  - mn: Эмч**ээс** асуугаарай.
-    en: Please ask the doctor.
----
-
 ## How to use
 
 The ablative shows **where something comes from**. It answers **хаанаас?** (from
