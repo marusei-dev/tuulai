@@ -1,10 +1,16 @@
 ---
 // One grammar point: summary card, explanation in the reader's language and examples.
-import { getEntries, getEntry, render } from 'astro:content';
+import { marked } from 'marked';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import GrammarCard from '../components/GrammarCard.astro';
-import { grammarListUrl, grammarUrl, highlightParts, type GrammarEntry } from '../lib/grammar';
-import { DEFAULT_LOCALE, type Locale } from '../i18n/locales';
+import {
+  getOtherLevels,
+  grammarListUrl,
+  grammarUrl,
+  highlightParts,
+  type GrammarEntry,
+} from '../lib/grammar';
+import type { Locale } from '../i18n/locales';
 import { useTranslations } from '../i18n/ui';
 
 interface Props {
@@ -14,14 +20,13 @@ interface Props {
 
 const { entry, locale } = Astro.props;
 const t = useTranslations(locale);
-const { title, subtitle, level, examples, related } = entry.data;
-const relatedEntries = (await getEntries(related)).filter((other) => !other.data.draft);
-// Fall back to the English explanation until a translation exists.
-const explanation =
-  (await getEntry('explanations', `${locale}/${entry.id}`)) ??
-  (await getEntry('explanations', `${DEFAULT_LOCALE}/${entry.id}`));
-const isFallback = explanation !== undefined && !explanation.id.startsWith(`${locale}/`);
-const { Content } = explanation ? await render(explanation) : { Content: null };
+const { title, subtitle, level, examples, explanation } = entry.data;
+const relatedEntries = await getOtherLevels(entry);
+// Fall back to the English explanation until a translation exists. The Markdown is
+// written by site admins only, and the Content-Security-Policy blocks inline scripts.
+const localized = explanation[locale];
+const isFallback = !localized;
+const explanationHtml = await marked.parse(localized ?? explanation.en);
 ---
 
 <BaseLayout title={subtitle ? `${title} · ${subtitle}` : title} locale={locale}>
@@ -29,7 +34,7 @@ const { Content } = explanation ? await render(explanation) : { Content: null };
 
   <article class="prose">
     {isFallback && <p class="notice">{t('grammar.missingExplanation')}</p>}
-    {Content && <Content />}
+    <Fragment set:html={explanationHtml} />
 
     {examples.length > 0 && (
       <section>

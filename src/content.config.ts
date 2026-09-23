@@ -1,4 +1,4 @@
-import { defineCollection, reference } from 'astro:content';
+import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { LEVELS } from './lib/levels';
@@ -9,8 +9,10 @@ const translated = z.object({
   ru: z.string(),
 });
 
-// Grammar points: one YAML file per entry with the Mongolian data, grouped by level
-// folder, e.g. src/content/grammar/m1/bol.yaml -> /m1/grammar/bol/.
+// Grammar points: one YAML file per entry, grouped by level folder, e.g.
+// src/content/grammar/m1/bol.yaml -> /m1/grammar/bol/. The same file name in another
+// level folder (m3/bol.yaml) is the same form taught at that level; the pages link
+// to each other automatically. Files are edited by hand or in the admin (/admin/).
 const grammar = defineCollection({
   loader: glob({ pattern: '**/*.yaml', base: './src/content/grammar' }),
   schema: z.object({
@@ -37,8 +39,12 @@ const grammar = defineCollection({
         }),
       )
       .default([]),
-    // The same form taught at other levels with a wider meaning, e.g. m1/bol -> m3/bol.
-    related: z.array(reference('grammar')).default([]),
+    // Longer Markdown explanation per language. Without a Russian text the English one
+    // is shown with a notice.
+    explanation: z.object({
+      en: z.string(),
+      ru: z.string().optional(),
+    }),
     // Sort order within the level's grammar list.
     order: z.number().int().default(0),
     // Drafts are excluded from production builds.
@@ -46,10 +52,4 @@ const grammar = defineCollection({
   }),
 });
 
-// Longer explanation of each grammar point, one Markdown file per language, with the
-// same path as its grammar entry: src/content/explanations/en/m1/bol.md.
-const explanations = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/explanations' }),
-});
-
-export const collections = { grammar, explanations };
+export const collections = { grammar };

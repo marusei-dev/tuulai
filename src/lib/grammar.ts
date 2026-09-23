@@ -47,6 +47,17 @@ export function highlightParts(text: string, fallback: string): TextPart[] {
     .map((part) => ({ text: part, hit: part === fallback }));
 }
 
+// The same grammar point at other levels: entries with the same file name in another
+// level folder, e.g. m1/bol -> m3/bol.
+export async function getOtherLevels(entry: GrammarEntry) {
+  const slug = grammarSlug(entry);
+  const entries = await getCollection(
+    'grammar',
+    (other) => other.id !== entry.id && grammarSlug(other) === slug && !other.data.draft,
+  );
+  return entries.sort((a, b) => a.data.level.localeCompare(b.data.level));
+}
+
 // Published grammar points of one level, in list order.
 export async function getGrammarByLevel(level: Level) {
   const entries = await getCollection(

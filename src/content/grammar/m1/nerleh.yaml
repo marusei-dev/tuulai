@@ -17,3 +17,31 @@ examples:
   - mn: '**Энэ** бол ном.'
     en: This is a book.
     ru: 'Это книга.'
+explanation:
+  en: |
+    ## How to use
+
+    The nominative is the plain dictionary form of a noun. It takes **no suffix** and
+    answers the questions **хэн?** (who?) and **юу?** (what?). The subject of a sentence
+    is in the nominative case.
+
+    | Асуулт | Жишээ      |
+    | ------ | ---------- |
+    | Хэн?   | Дорж, багш |
+    | Юу?    | ном, нохой |
+
+    Mongolian has **8 cases** in total. Every other case adds a suffix to this plain form.
+  ru: |
+    ## Как использовать
+
+    Именительный падеж — это исходная, словарная форма существительного. Он **не имеет
+    суффикса** и отвечает на вопросы **хэн?** (кто?) и **юу?** (что?). Подлежащее
+    предложения стоит в именительном падеже.
+
+    | Асуулт | Жишээ      |
+    | ------ | ---------- |
+    | Хэн?   | Дорж, багш |
+    | Юу?    | ном, нохой |
+
+    Всего в монгольском языке **8 падежей**. Все остальные падежи добавляют суффикс к этой
+    исходной форме.
