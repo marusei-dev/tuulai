@@ -12,5 +12,11 @@ export default defineConfig({
   // Emit every script and stylesheet as a separate file (no inline <script>/<style>),
   // so the Content-Security-Policy in public/_headers can allow only 'self'.
   build: { inlineStylesheets: 'never' },
-  vite: { build: { assetsInlineLimit: 0 } },
+  vite: {
+    build: {
+      assetsInlineLimit: 0,
+      // The admin bundle (Sveltia CMS) is large by design; it only loads on /admin/.
+      chunkSizeWarningLimit: 4000,
+    },
+  },
 });

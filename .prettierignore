@@ -2,3 +2,6 @@ dist/
 .astro/
 node_modules/
 package-lock.json
+
+# Grammar entries are also written by the admin (Sveltia CMS) in its own YAML style.
+src/content/**/*.yaml

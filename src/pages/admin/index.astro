@@ -1,0 +1,23 @@
+---
+// Admin UI (Sveltia CMS). Anyone can open this page, but only GitHub users with write
+// access to the repository can sign in and save. The CMS renders itself into <body>.
+---
+
+<!doctype html>
+<html lang="mn">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Tuulai Admin</title>
+  </head>
+  <body>
+    <script>
+      import { init } from '@sveltia/cms';
+      import { cmsConfig } from '../../admin/config';
+
+      init({ config: cmsConfig });
+    </script>
+  </body>
+</html>
