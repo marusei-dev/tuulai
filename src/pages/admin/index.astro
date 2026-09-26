@@ -16,7 +16,9 @@
     <script>
       import { init } from '@sveltia/cms';
       import { cmsConfig } from '../../admin/config';
+      import { registerGrammarPreview } from '../../admin/preview';
 
+      registerGrammarPreview();
       init({ config: cmsConfig });
     </script>
   </body>

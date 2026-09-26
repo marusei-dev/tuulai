@@ -1,0 +1,63 @@
+/* Stylesheet of the admin preview pane: the site's fonts, colours and grammar page styles,
+   so the preview looks like the live page. Loaded by src/admin/preview.ts. */
+@import '@fontsource-variable/nunito';
+@import '@fontsource/noto-sans-mongolian/mongolian-400.css';
+@import '../styles/global.css';
+@import '../styles/grammar-card.css';
+@import '../styles/grammar-article.css';
+
+body {
+  padding: 0 1.25rem 1rem;
+}
+
+.preview-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 0.75rem 0;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.preview-langs {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.preview-langs button {
+  min-width: 2.75rem;
+  min-height: 2rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.preview-langs button[aria-pressed='true'] {
+  border-color: var(--flag-blue);
+  background: var(--flag-blue);
+  color: #fff;
+}
+
+.preview-note {
+  padding: 0.75rem 1rem;
+  background: var(--color-surface);
+  border-radius: 8px;
+  color: var(--color-muted);
+}
+
+.preview-empty {
+  color: var(--color-muted);
+  font-style: italic;
+}

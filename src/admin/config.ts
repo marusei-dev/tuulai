@@ -33,6 +33,10 @@ export const cmsConfig: CmsConfig = {
       slug: '{{fields._slug}}',
       path: '{{fields.level | lower}}/{{slug}}',
       summary: '{{level}} · {{title}}',
+      // "View on site" link in the editor. Renaming an entry must not add an aliases list
+      // to the YAML file, so aliases_field is off.
+      preview_path: 'en/{{fields.level | lower}}/grammar/{{slug}}/',
+      aliases_field: false,
       sortable_fields: ['level', 'order', 'title'],
       view_groups: [{ name: 'level', label: 'Түвшин', field: 'level' }],
       fields: [
@@ -110,6 +114,7 @@ export const cmsConfig: CmsConfig = {
               widget: 'markdown',
               // Raw mode first so Markdown tables are kept exactly as written.
               modes: ['raw', 'rich_text'],
+              hint: '"Дагавар" баганатай хүснэгтийн мөр бүр хайлтад тусдаа дүрэм болж орно.',
             },
             {
               name: 'ru',
