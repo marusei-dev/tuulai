@@ -66,3 +66,12 @@ export async function getGrammarByLevel(level: Level) {
   );
   return entries.sort((a, b) => a.data.order - b.data.order);
 }
+
+// All published grammar points in study order: by level, then by list order.
+export async function getAllGrammar() {
+  const entries = await getCollection('grammar', (entry) => !entry.data.draft);
+  return entries.sort(
+    (a, b) =>
+      LEVELS.indexOf(a.data.level) - LEVELS.indexOf(b.data.level) || a.data.order - b.data.order,
+  );
+}
