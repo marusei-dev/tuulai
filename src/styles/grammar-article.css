@@ -1,0 +1,47 @@
+/* Explanation and example list below the grammar card. Shared by
+   src/views/GrammarView.astro and the admin preview (src/admin/preview.ts). */
+.grammar-article {
+  margin-bottom: 3rem;
+  line-height: 1.7;
+}
+
+.grammar-article h2 {
+  display: inline-block;
+  margin: 1.5rem 0 0.5rem;
+  padding-bottom: 0.2rem;
+  border-bottom: 3px solid var(--flag-red);
+  font-size: 1.5rem;
+}
+
+.grammar-article table {
+  border-collapse: collapse;
+}
+
+.grammar-article th,
+.grammar-article td {
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.grammar-article .examples {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-left: 1.5rem;
+}
+
+.grammar-article .examples p {
+  margin: 0;
+}
+
+.grammar-article .mn {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.grammar-article mark {
+  background: none;
+  color: var(--flag-red);
+  font-weight: 900;
+}
