@@ -48,6 +48,7 @@ const currentSegment = path.split('/')[1];
             <a
               href={localePath(l, path)}
               hreflang={l}
+              data-locale-switch={l}
               lang={l}
               aria-current={l === locale ? 'true' : undefined}
             >

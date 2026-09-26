@@ -28,6 +28,8 @@ const defaultHref = new URL(localePath(DEFAULT_LOCALE, path), Astro.site).href;
 <html lang={locale}>
   <head>
     <meta charset="utf-8" />
+    <!-- Blocking on purpose: picks the language before anything renders. -->
+    <script is:inline src="/scripts/language.js"></script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     {alternates.map((alt) => (
