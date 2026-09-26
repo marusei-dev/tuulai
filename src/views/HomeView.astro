@@ -1,9 +1,10 @@
 ---
-// Home page: minimal hero with placeholder copy and shortcuts to each level.
+// Home page: grammar search as the hero, then levels and an index of every grammar point.
 import BaseLayout from '../layouts/BaseLayout.astro';
-import LogoMark from '../components/LogoMark.astro';
+import Search from '../components/Search.astro';
 import { LEVELS } from '../lib/levels';
-import { grammarListUrl } from '../lib/grammar';
+import { getAllGrammar, grammarListUrl, grammarUrl } from '../lib/grammar';
+import { countByLevel } from '../lib/search';
 import type { Locale } from '../i18n/locales';
 import { useTranslations } from '../i18n/ui';
 
@@ -13,20 +14,82 @@ interface Props {
 
 const { locale } = Astro.props;
 const t = useTranslations(locale);
+
+const entries = await getAllGrammar();
+const counts = await countByLevel();
+const readyLevels = LEVELS.filter((level) => counts[level] > 0);
+const exampleCount = entries.reduce((sum, entry) => sum + entry.data.examples.length, 0);
 ---
 
 <BaseLayout locale={locale}>
   <section class="hero">
-    <LogoMark size={96} />
+    <p class="eyebrow">{t('home.eyebrow')}</p>
     <h1>{t('home.title')}</h1>
     <p class="lead">{t('home.lead')}</p>
-    <ul class="levels" aria-label={t('nav.levels')}>
-      {LEVELS.map((level) => (
-        <li>
-          <a href={grammarListUrl(level, locale)}>{level}</a>
-        </li>
-      ))}
-    </ul>
+    <Search locale={locale} />
+    <p class="stats">
+      {t('home.stats', { points: String(entries.length), examples: String(exampleCount) })}
+    </p>
+  </section>
+
+  <section class="overview">
+    <div class="levels-col">
+      <h2>{t('home.browse')}</h2>
+      <p class="sub">{t('home.browseLead')}</p>
+      <ul class="levels">
+        {LEVELS.map((level) => (
+          <li>
+            {counts[level] > 0 ? (
+              <a class="level ready" href={grammarListUrl(level, locale)}>
+                <span class="badge">{level}</span>
+                <span class="level-text">
+                  {t('home.pointCount', { count: String(counts[level]) })}
+                </span>
+              </a>
+            ) : (
+              <div class="level soon">
+                <span class="badge">{level}</span>
+                <span class="level-text">{t('home.comingSoon')}</span>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="index-col">
+      <div class="index-head">
+        <div>
+          <h2>{t('home.all')}</h2>
+          <p class="sub">{t('home.allLead', { count: String(entries.length) })}</p>
+        </div>
+        {readyLevels.length === 1 && (
+          <a class="full-list" href={grammarListUrl(readyLevels[0], locale)}>
+            {t('home.fullList', { level: readyLevels[0] })} →
+          </a>
+        )}
+      </div>
+      <ol class="index">
+        {entries.map((entry, i) => (
+          <li>
+            <a href={grammarUrl(entry, locale)}>
+              <span class="num">{i + 1}</span>
+              <span class="form" lang="mn">
+                <span class="title">{entry.data.title}</span>
+                {entry.data.subtitle && <span class="subtitle">{entry.data.subtitle}</span>}
+              </span>
+              <span class="meaning">
+                {readyLevels.length > 1 && <span class="tag">{entry.data.level}</span>}
+                {entry.data.meaning[locale]}
+              </span>
+              <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m9 6 6 6-6 6" />
+              </svg>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </div>
   </section>
 </BaseLayout>
 
@@ -35,60 +98,258 @@ const t = useTranslations(locale);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
-    padding-block: clamp(3rem, 12vw, 6rem);
+    padding-block: clamp(2.5rem, 8vw, 4.5rem) clamp(2rem, 6vw, 3.5rem);
     text-align: center;
   }
 
-  h1 {
-    margin: 0.5rem 0 0;
-    font-size: clamp(2rem, 5vw, 3rem);
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    color: var(--flag-red);
+    font-size: 0.8rem;
     font-weight: 800;
-    letter-spacing: -0.02em;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .eyebrow::before,
+  .eyebrow::after {
+    content: '';
+    width: 1.25rem;
+    height: 2px;
+    background: currentColor;
+  }
+
+  h1 {
+    max-width: 22ch;
+    margin: 0.75rem 0 0;
+    font-family: 'Nunito Variable', system-ui, sans-serif;
+    font-size: clamp(2.1rem, 6vw, 3.25rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
     color: var(--flag-blue);
   }
 
   .lead {
+    max-width: 38rem;
+    margin: 1rem 0 2rem;
+    color: var(--color-muted);
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+
+  .stats {
+    margin: 1.25rem 0 0;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+  }
+
+  .overview {
+    display: grid;
+    grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 3.5rem);
+    padding-block: 2.5rem 1rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  h2 {
     margin: 0;
-    font-size: 1.15rem;
+    font-family: 'Nunito Variable', system-ui, sans-serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+  }
+
+  .sub {
+    margin: 0.25rem 0 1.25rem;
     color: var(--color-muted);
   }
 
   .levels {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.75rem;
-    margin: 1.5rem 0 0;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .levels a {
-    display: inline-flex;
+  .level {
+    display: flex;
     align-items: center;
-    justify-content: center;
-    min-width: 3.5rem;
-    min-height: 2.75rem;
-    border: 2px solid var(--flag-blue);
-    border-radius: 999px;
-    color: var(--flag-blue);
-    font-weight: 700;
+    gap: 0.9rem;
+    min-height: 3.25rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 12px;
     text-decoration: none;
   }
 
-  .levels a:hover {
+  .ready {
+    border: 2px solid var(--flag-blue);
+    color: var(--color-text);
+  }
+
+  .ready:hover {
+    background: #eef4fa;
+  }
+
+  .ready .badge {
     background: var(--flag-blue);
     color: #fff;
   }
 
-  /* Phones: an even 3 × 2 grid instead of a ragged 5 + 1 wrap. */
-  @media (max-width: 640px) {
+  .ready .level-text {
+    color: var(--flag-blue);
+    font-weight: 700;
+  }
+
+  .soon {
+    border: 1px dashed var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-muted);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    height: 2.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-bg);
+    font-weight: 800;
+  }
+
+  .index-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .index-head .sub {
+    margin-bottom: 0;
+  }
+
+  .full-list {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    color: var(--flag-blue);
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .full-list:hover {
+    text-decoration: underline;
+  }
+
+  .index {
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--color-border);
+    list-style: none;
+  }
+
+  .index a {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 13rem) minmax(0, 1fr) 1.25rem;
+    align-items: center;
+    gap: 1rem;
+    min-height: 3.75rem;
+    padding: 0.6rem 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .index a:hover {
+    background: var(--color-surface);
+  }
+
+  .num {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    text-align: right;
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .title {
+    color: var(--flag-blue);
+    font-family: 'Nunito Variable', system-ui, sans-serif;
+    font-size: 1.3rem;
+    font-weight: 900;
+  }
+
+  .subtitle {
+    color: var(--color-muted);
+    font-size: 0.85rem;
+  }
+
+  .tag {
+    margin-right: 0.5rem;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    background: #e3eef8;
+    color: var(--flag-blue);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .chevron {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+    stroke: var(--color-muted);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  @media (max-width: 800px) {
+    .overview {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
     .levels {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      width: 100%;
-      max-width: 18rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .index a {
+      grid-template-columns: 1.5rem minmax(0, 1fr) 1.25rem;
+      gap: 0.25rem 0.75rem;
+    }
+
+    .form {
+      grid-column: 2;
+    }
+
+    .meaning {
+      grid-column: 2;
+      color: var(--color-muted);
+      font-size: 0.95rem;
+    }
+
+    .chevron {
+      grid-column: 3;
+      grid-row: 1 / span 2;
+    }
+
+    .index-head {
+      flex-direction: column;
+      align-items: flex-start;
     }
   }
 </style>

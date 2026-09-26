@@ -1,0 +1,712 @@
+---
+// Grammar search for the home page. Searches the build-time index at /search-index.json
+// (see src/lib/search.ts) in the browser, so part-of-word queries such as "-ын" also find
+// "Батын". Results follow the ARIA combobox pattern: arrow keys move, Enter opens,
+// Esc clears, and "/" anywhere on the page focuses the field.
+import type { Locale } from '../i18n/locales';
+import { uiStrings, useTranslations } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const s = uiStrings(locale);
+
+// Templates the client fills in itself.
+const clientStrings = {
+  results: s['search.results'],
+  none: s['search.none'],
+  points: s['search.points'],
+  rules: s['search.rules'],
+  examples: s['search.examples'],
+  in: s['search.in'],
+};
+
+const chips = [
+  { query: 'бол', kind: t('search.kindWord') },
+  { query: '-аас', kind: t('search.kindSuffix') },
+  { query: t('search.chipTerm'), kind: t('search.kindTerm') },
+  { query: t('search.chipMeaning'), kind: t('search.kindMeaning') },
+];
+---
+
+<div class="search" data-search data-locale={locale} data-strings={JSON.stringify(clientStrings)}>
+  <div class="card">
+    <form class="box" role="search" data-form>
+      <label for="search-input" class="visually-hidden">
+        {t('search.label')}
+      </label>
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="10.5" cy="10.5" r="6.5"></circle>
+        <path d="M15.5 15.5 21 21"></path>
+      </svg>
+      <input
+        id="search-input"
+        name="q"
+        type="search"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder={t('search.placeholder')}
+        role="combobox"
+        aria-autocomplete="list"
+        aria-expanded="false"
+        aria-controls="search-results"
+        data-input
+      />
+      <kbd class="slash" aria-hidden="true">
+        /
+      </kbd>
+      <button type="button" class="clear" aria-label={t('search.clear')} hidden data-clear>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 6l12 12M18 6 6 18"></path>
+        </svg>
+      </button>
+    </form>
+    <div class="panel" hidden data-panel>
+      <p class="status" data-status></p>
+      <div id="search-results" role="listbox" aria-label={t('search.label')} data-results></div>
+      <div class="keys" aria-hidden="true">
+        <span>
+          <kbd>↑</kbd>
+          <kbd>↓</kbd> {t('search.move')}
+        </span>
+        <span>
+          <kbd>Enter</kbd> {t('search.open')}
+        </span>
+        <span>
+          <kbd>Esc</kbd> {t('search.close')}
+        </span>
+        <span class="scope">{t('search.scope')}</span>
+      </div>
+    </div>
+  </div>
+  <p class="visually-hidden" aria-live="polite" data-live></p>
+  <div class="try">
+    <span class="try-label">{t('search.try')}</span>
+    {chips.map((chip) => (
+      <button type="button" class="chip" data-query={chip.query}>
+        <span lang={chip.query === 'бол' || chip.query === '-аас' ? 'mn' : locale}>
+          {chip.query}
+        </span>
+        <span class="kind">{chip.kind}</span>
+      </button>
+    ))}
+  </div>
+</div>
+
+<script>
+  import type { SearchExample, SearchIndex, SearchPoint, SearchRule } from '../lib/search';
+
+  type Locale = 'en' | 'ru';
+  interface Strings {
+    results: string;
+    none: string;
+    points: string;
+    rules: string;
+    examples: string;
+    in: string;
+  }
+
+  const LIMITS = { points: 6, rules: 4, examples: 4 };
+
+  const fill = (template: string, vars: Record<string, string>) =>
+    template.replace(/\{(\w+)\}/g, (_, name: string) => vars[name] ?? '');
+
+  // Case-insensitive, and ё = е. Keeps the string length, so match positions line up.
+  const norm = (text: string) => text.toLocaleLowerCase().replaceAll('ё', 'е');
+
+  // Append text to el, wrapping every match of needle in <mark>.
+  function highlight(el: HTMLElement, text: string, needle: string) {
+    const lower = norm(text);
+    let from = 0;
+    for (let at = lower.indexOf(needle); needle && at !== -1; at = lower.indexOf(needle, from)) {
+      el.append(text.slice(from, at));
+      const mark = document.createElement('mark');
+      mark.textContent = text.slice(at, at + needle.length);
+      el.append(mark);
+      from = at + needle.length;
+    }
+    el.append(text.slice(from));
+  }
+
+  function span(className: string, text: string, needle: string, lang?: string) {
+    const el = document.createElement('span');
+    el.className = className;
+    if (lang) el.lang = lang;
+    highlight(el, text, needle);
+    return el;
+  }
+
+  function setup(root: HTMLElement) {
+    const locale = root.dataset.locale as Locale;
+    const strings = JSON.parse(root.dataset.strings ?? '{}') as Strings;
+    const input = root.querySelector<HTMLInputElement>('[data-input]')!;
+    const form = root.querySelector<HTMLFormElement>('[data-form]')!;
+    const panel = root.querySelector<HTMLElement>('[data-panel]')!;
+    const status = root.querySelector<HTMLElement>('[data-status]')!;
+    const live = root.querySelector<HTMLElement>('[data-live]')!;
+    const results = root.querySelector<HTMLElement>('[data-results]')!;
+    const clear = root.querySelector<HTMLButtonElement>('[data-clear]')!;
+
+    let index: SearchIndex | null = null;
+    let loading: Promise<SearchIndex> | null = null;
+    const load = () =>
+      (loading ??= fetch('/search-index.json')
+        .then((response) => response.json() as Promise<SearchIndex>)
+        .then((data) => (index = data)));
+
+    let options: HTMLAnchorElement[] = [];
+    let active = -1;
+
+    const url = (path: string) => `/${locale}${path}`;
+
+    function setActive(next: number) {
+      options[active]?.setAttribute('aria-selected', 'false');
+      active = next;
+      const option = options[active];
+      if (option) {
+        option.setAttribute('aria-selected', 'true');
+        option.scrollIntoView({ block: 'nearest' });
+        input.setAttribute('aria-activedescendant', option.id);
+      } else {
+        input.removeAttribute('aria-activedescendant');
+      }
+    }
+
+    function close() {
+      panel.hidden = true;
+      input.setAttribute('aria-expanded', 'false');
+      results.replaceChildren();
+      options = [];
+      setActive(-1);
+    }
+
+    function option(href: string, className: string, parts: HTMLElement[]) {
+      const link = document.createElement('a');
+      link.href = href;
+      link.className = `opt ${className}`;
+      link.id = `search-option-${options.length}`;
+      link.setAttribute('role', 'option');
+      link.setAttribute('aria-selected', 'false');
+      link.tabIndex = -1;
+      link.append(...parts);
+      options.push(link);
+      return link;
+    }
+
+    function group(key: 'points' | 'rules' | 'examples', items: HTMLElement[]) {
+      if (!items.length) return;
+      const wrapper = document.createElement('div');
+      wrapper.className = 'group';
+      wrapper.setAttribute('role', 'group');
+      const title = document.createElement('p');
+      title.className = 'group-title';
+      title.id = `search-group-${key}`;
+      title.textContent = strings[key];
+      wrapper.setAttribute('aria-labelledby', title.id);
+      wrapper.append(title, ...items);
+      results.append(wrapper);
+    }
+
+    function search(raw: string) {
+      const query = raw.trim();
+      clear.hidden = !raw;
+      const q = norm(query);
+      // "-ын" also matches inside words ("Батын"), so drop leading dashes for matching.
+      const core = q.replace(/^-+/, '').trim();
+      if (!core || !index) {
+        if (!core) close();
+        return;
+      }
+      // A single letter only matches suffix forms ("-д" finds -д / -т), not every word.
+      const short = core.length < 2;
+      const has = (text: string) => norm(text).includes(core);
+      const byId = new Map(index.points.map((point) => [point.id, point]));
+
+      const scorePoint = (p: SearchPoint) => {
+        const forms = norm(p.title)
+          .split('/')
+          .map((form) => form.trim().replace(/^-+/, ''));
+        if (forms.includes(core)) return 100;
+        if (short) return 0;
+        if (has(p.title)) return 80;
+        if (has(p.subtitle)) return 60;
+        if (has(p.meaning.en) || has(p.meaning.ru)) return 50;
+        if (p.slug.includes(core)) return 40;
+        if (p.usage.some(has)) return 30;
+        return 0;
+      };
+      const points = index.points
+        .map((point) => ({ point, score: scorePoint(point) }))
+        .filter((hit) => hit.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, LIMITS.points)
+        .map((hit) => hit.point);
+      const rules = index.rules
+        .filter((r: SearchRule) =>
+          short
+            ? norm(r.suffix).replace(/^-+/, '') === core
+            : has(r.suffix) || has(r.ending) || has(r.examples),
+        )
+        .sort((a, b) => Number(has(b.suffix)) - Number(has(a.suffix)))
+        .slice(0, LIMITS.rules);
+      // The same sentence can illustrate two grammar points: list it once.
+      const seen = new Set<string>();
+      const examples = (short ? [] : index.examples)
+        .filter((e: SearchExample) => has(e.mn) || has(e.en) || has(e.ru))
+        .filter((e) => !seen.has(e.mn) && Boolean(seen.add(e.mn)))
+        .slice(0, LIMITS.examples);
+
+      results.replaceChildren();
+      options = [];
+      setActive(-1);
+
+      const from = (pointId: string) => {
+        const point = byId.get(pointId);
+        const el = document.createElement('span');
+        el.className = 'from';
+        if (point) {
+          el.append(`${strings.in} `);
+          const title = document.createElement('b');
+          title.lang = 'mn';
+          title.textContent = point.title;
+          el.append(title);
+        }
+        return el;
+      };
+
+      group(
+        'points',
+        points.map((p) => {
+          const body = document.createElement('span');
+          body.className = 'body';
+          if (p.subtitle) body.append(span('subtitle', p.subtitle, core, 'mn'));
+          body.append(span('meaning', p.meaning[locale], core));
+          if (p.usage[0]) body.append(span('usage', p.usage[0], core, 'mn'));
+          const level = document.createElement('span');
+          level.className = 'level';
+          level.textContent = p.level;
+          return option(url(p.path), 'point', [span('tile', p.title, core, 'mn'), body, level]);
+        }),
+      );
+      group(
+        'rules',
+        rules.map((r) => {
+          const point = byId.get(r.pointId);
+          const body = document.createElement('span');
+          body.className = 'body';
+          const line = span('line', `${r.ending} → `, core, 'mn');
+          highlight(line, r.suffix, core);
+          body.append(line);
+          if (r.examples) body.append(span('sub', r.examples, core, 'mn'));
+          return option(url(point?.path ?? '/'), 'rule', [body, from(r.pointId)]);
+        }),
+      );
+      group(
+        'examples',
+        examples.map((e) => {
+          const point = byId.get(e.pointId);
+          const body = document.createElement('span');
+          body.className = 'body';
+          body.append(span('line', e.mn, core, 'mn'), span('sub', e[locale], core));
+          return option(url(point?.path ?? '/'), 'example', [body, from(e.pointId)]);
+        }),
+      );
+
+      const count = String(options.length);
+      status.textContent = options.length
+        ? fill(strings.results, { query, count })
+        : fill(strings.none, { query });
+      live.textContent = status.textContent;
+      panel.hidden = false;
+      input.setAttribute('aria-expanded', String(options.length > 0));
+    }
+
+    async function run() {
+      const value = input.value;
+      if (value.trim() && !index) await load();
+      if (input.value !== value) return; // A newer keystroke will run its own search.
+      search(value);
+      // Keep the query in the address bar, so a search can be shared or reopened.
+      const params = new URLSearchParams(location.search);
+      if (value.trim()) params.set('q', value.trim());
+      else params.delete('q');
+      const qs = params.toString();
+      history.replaceState(null, '', `${location.pathname}${qs ? `?${qs}` : ''}${location.hash}`);
+    }
+
+    input.addEventListener('input', run);
+    input.addEventListener('focus', () => void load());
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        if (!options.length) return;
+        event.preventDefault();
+        const step = event.key === 'ArrowDown' ? 1 : -1;
+        setActive((active + step + options.length) % options.length);
+      } else if (event.key === 'Enter') {
+        event.preventDefault();
+        const target = options[active] ?? options[0];
+        if (target) location.href = target.href;
+      } else if (event.key === 'Escape') {
+        if (input.value) {
+          input.value = '';
+          void run();
+        } else {
+          input.blur();
+        }
+      }
+    });
+    form.addEventListener('submit', (event) => event.preventDefault());
+    clear.addEventListener('click', () => {
+      input.value = '';
+      void run();
+      input.focus();
+    });
+    root.querySelectorAll<HTMLButtonElement>('[data-query]').forEach((chip) =>
+      chip.addEventListener('click', () => {
+        input.value = chip.dataset.query ?? '';
+        input.focus();
+        void run();
+      }),
+    );
+
+    // "/" focuses the search from anywhere, unless the reader is typing somewhere else.
+    document.addEventListener('keydown', (event) => {
+      const target = event.target as HTMLElement;
+      const typing = target.closest('input, textarea, select, [contenteditable="true"]');
+      if (event.key === '/' && !typing && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        event.preventDefault();
+        input.focus();
+      }
+    });
+
+    // Reopen a shared or previous search: /en/?q=-ын
+    const initial = new URLSearchParams(location.search).get('q');
+    if (initial) {
+      input.value = initial;
+      void run();
+    }
+  }
+
+  const root = document.querySelector<HTMLElement>('[data-search]');
+  if (root) setup(root);
+</script>
+
+<style>
+  .search {
+    width: 100%;
+    max-width: 50rem;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .card {
+    border: 2px solid var(--flag-blue);
+    border-radius: 16px;
+    background: var(--color-bg);
+    box-shadow: 0 12px 32px rgb(1 81 151 / 0.1);
+    text-align: left;
+  }
+
+  .box {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0 0.75rem 0 1.25rem;
+  }
+
+  .icon {
+    flex-shrink: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    fill: none;
+    stroke: var(--flag-blue);
+    stroke-width: 2.25;
+    stroke-linecap: round;
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    min-height: 3.75rem;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  input::placeholder {
+    color: #6e7781;
+    font-weight: 400;
+  }
+
+  input:focus {
+    outline: none;
+  }
+
+  .card:focus-within {
+    box-shadow:
+      0 0 0 4px rgb(249 207 2 / 0.55),
+      0 12px 32px rgb(1 81 151 / 0.1);
+  }
+
+  input::-webkit-search-cancel-button {
+    appearance: none;
+  }
+
+  .slash {
+    padding: 0.1rem 0.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    color: var(--color-muted);
+    font-size: 0.85rem;
+  }
+
+  .clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    cursor: pointer;
+  }
+
+  .clear:hover,
+  .clear:focus-visible {
+    background: var(--color-surface);
+  }
+
+  .clear svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+    stroke: var(--color-text);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .clear[hidden] {
+    display: none;
+  }
+
+  .panel {
+    border-top: 2px solid var(--flag-blue);
+  }
+
+  .status {
+    margin: 0;
+    padding: 0.85rem 1.25rem 0.25rem;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+  }
+
+  [data-results] {
+    max-height: min(60vh, 34rem);
+    overflow-y: auto;
+  }
+
+  .search :global(.group-title) {
+    margin: 0;
+    padding: 0.75rem 1.25rem 0.35rem;
+    color: var(--color-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .search :global(.group + .group) {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .search :global(.opt) {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 2.75rem;
+    margin: 0 0.5rem 0.35rem;
+    padding: 0.6rem 0.75rem;
+    border-left: 3px solid transparent;
+    border-radius: 10px;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .search :global(.opt:hover),
+  .search :global(.opt[aria-selected='true']) {
+    border-left-color: var(--flag-red);
+    background: #eef4fa;
+  }
+
+  .search :global(.body) {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .search :global(.tile) {
+    flex-shrink: 0;
+    padding: 0.4rem 0.75rem;
+    border-radius: 8px;
+    background: #faf8f3;
+    color: var(--flag-blue);
+    font-family: 'Nunito Variable', system-ui, sans-serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  .search :global(.subtitle) {
+    color: var(--flag-red);
+    font-weight: 700;
+  }
+
+  .search :global(.usage),
+  .search :global(.sub),
+  .search :global(.from) {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+  }
+
+  .search :global(.line) {
+    font-weight: 700;
+  }
+
+  .search :global(.from) {
+    flex-shrink: 0;
+    text-align: right;
+  }
+
+  .search :global(.from b) {
+    color: var(--flag-blue);
+  }
+
+  .search :global(.level) {
+    flex-shrink: 0;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    background: #e3eef8;
+    color: var(--flag-blue);
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .search :global(mark) {
+    background: #fde98a;
+    color: inherit;
+    border-radius: 3px;
+  }
+
+  .keys {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--color-border);
+    border-radius: 0 0 14px 14px;
+    background: var(--color-surface);
+    color: var(--color-muted);
+    font-size: 0.85rem;
+  }
+
+  .keys kbd {
+    margin-right: 0.2rem;
+    padding: 0.05rem 0.4rem;
+    border: 1px solid var(--color-border);
+    border-radius: 5px;
+    background: var(--color-bg);
+    font-size: 0.75rem;
+  }
+
+  .scope {
+    margin-left: auto;
+  }
+
+  .try {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+  }
+
+  .try-label {
+    color: var(--color-muted);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    min-height: 2.75rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-bg);
+    color: var(--flag-blue);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .chip:hover,
+  .chip:focus-visible {
+    border-color: var(--flag-blue);
+  }
+
+  .kind {
+    color: var(--color-muted);
+    font-size: 0.8rem;
+    font-weight: 400;
+  }
+
+  /* Phones: the keyboard takes half the screen, so keep results compact. */
+  @media (max-width: 640px) {
+    .slash,
+    .keys {
+      display: none;
+    }
+
+    .search :global(.opt) {
+      flex-wrap: wrap;
+      gap: 0.35rem 0.75rem;
+    }
+
+    .search :global(.tile) {
+      font-size: 1.25rem;
+    }
+
+    /* Grammar point: suffix and level on top, the text full width below. */
+    .search :global(.point .level) {
+      margin-left: auto;
+    }
+
+    .search :global(.point .body) {
+      order: 3;
+      flex-basis: 100%;
+    }
+
+    .search :global(.from) {
+      text-align: left;
+      width: 100%;
+    }
+  }
+</style>

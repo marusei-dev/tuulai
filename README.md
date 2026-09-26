@@ -34,6 +34,14 @@ For example `m1/bol.yaml` becomes `/en/m1/grammar/bol/` and `/ru/m1/grammar/bol/
 with the same name in another level folder (`m3/bol.yaml`) is the same form taught at
 that level, and the pages link to each other automatically.
 
+## Search
+
+The home page search runs in the browser against `/search-index.json`, which is built
+from the grammar entries (`src/lib/search.ts`): grammar points, the rows of each
+explanation's suffix table (tables with a "Дагавар" column) and all example sentences. It
+matches parts of words, so "-ын" also finds "Батын", and searches Mongolian, English and
+Russian at once. New grammar points are searchable as soon as they are published.
+
 ## Admin
 
 The admin at `/admin/` is [Sveltia CMS](https://sveltiacms.app/) (configured in
