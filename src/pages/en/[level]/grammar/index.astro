@@ -1,0 +1,11 @@
+---
+import GrammarListView from '../../../../views/GrammarListView.astro';
+import { levelPaths } from '../../../../lib/grammar';
+import type { Level } from '../../../../lib/levels';
+
+export const getStaticPaths = levelPaths;
+
+const { level } = Astro.props as { level: Level };
+---
+
+<GrammarListView level={level} locale="en" />

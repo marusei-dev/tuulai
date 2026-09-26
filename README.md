@@ -30,7 +30,7 @@ and example sentences, the meaning and translations in every site language (`en`
 and a Markdown explanation per language. Wrap text in `**double asterisks**` to highlight
 it on the card. A missing Russian explanation falls back to English.
 
-For example `m1/bol.yaml` becomes `/m1/grammar/bol/` and `/ru/m1/grammar/bol/`. A file
+For example `m1/bol.yaml` becomes `/en/m1/grammar/bol/` and `/ru/m1/grammar/bol/`. A file
 with the same name in another level folder (`m3/bol.yaml`) is the same form taught at
 that level, and the pages link to each other automatically.
 
@@ -50,7 +50,11 @@ When a field is added to the grammar schema, add it to the admin config too.
 
 ## Languages
 
-English is served at the site root and Russian under `/ru/`. Languages are listed in
+Each language has its own prefix: English under `/en/`, Russian under `/ru/`. The site root
+(`/`) forwards readers to their language: the one they picked with the EN/RU switcher,
+otherwise the first one their browser prefers, otherwise English
+(`public/scripts/language.js`). Old unprefixed English links redirect to `/en/`
+(`public/_redirects`). Languages are listed in
 `src/i18n/locales.ts` and interface strings live in `src/i18n/ui.ts`. Pages in
 `src/pages/` are thin per-language wrappers around the shared views in `src/views/`.
 

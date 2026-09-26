@@ -1,5 +1,79 @@
 ---
-import HomeView from '../views/HomeView.astro';
+// Site root: /scripts/language.js forwards readers to /en/ or /ru/ before this page
+// renders. The language links below are for readers without JavaScript.
+import LogoMark from '../components/LogoMark.astro';
+import { LOCALES, localePath } from '../i18n/locales';
+import '../styles/global.css';
+
+const names = { en: 'English', ru: 'Русский' } as const;
 ---
 
-<HomeView locale="en" />
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <script is:inline src="/scripts/language.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {LOCALES.map((l) => (
+      <link rel="alternate" hreflang={l} href={new URL(localePath(l, '/'), Astro.site).href} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={new URL('/', Astro.site).href} />
+    <title>Tuulai</title>
+  </head>
+  <body>
+    <main class="picker">
+      <LogoMark size={96} />
+      <h1>Tuulai</h1>
+      <ul>
+        {LOCALES.map((l) => (
+          <li>
+            <a href={localePath(l, '/')} hreflang={l} lang={l} data-locale-switch={l}>
+              {names[l]}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </main>
+  </body>
+</html>
+
+<style>
+  .picker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: clamp(3rem, 12vw, 6rem) 1rem;
+    text-align: center;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    color: var(--flag-blue);
+  }
+
+  ul {
+    display: flex;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 1.25rem;
+    border: 2px solid var(--flag-blue);
+    border-radius: 999px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  a:hover {
+    background: var(--flag-blue);
+    color: #fff;
+  }
+</style>

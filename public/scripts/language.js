@@ -1,10 +1,11 @@
 // Picks the site language before the page renders (loaded synchronously in <head>, so
 // readers never see a flash of the wrong language) and remembers the reader's choice.
 //
-// - A language chosen with the EN/RU switcher is stored and always wins.
-// - Otherwise, on an English page, readers whose browser prefers Russian are sent to
-//   the Russian version. Russian pages are never switched automatically, so shared
-//   /ru/ links keep working.
+// - The site root (/) forwards to /en/ or /ru/: the language chosen earlier, otherwise
+//   the first one the browser prefers, otherwise English.
+// - A language chosen with the EN/RU switcher is stored and always wins, so it is also
+//   applied to /en/… and /ru/… links.
+// - Without a stored choice, /en/… and /ru/… pages are shown as linked.
 //
 // Keep LOCALES and DEFAULT_LOCALE in sync with src/i18n/locales.ts.
 (() => {
@@ -38,22 +39,23 @@
     return DEFAULT_LOCALE;
   };
 
-  const current = document.documentElement.lang;
   const choice = readChoice();
-  let target = current;
-  if (LOCALES.includes(choice)) target = choice;
-  else if (current === DEFAULT_LOCALE) target = browserLocale();
+  const chosen = LOCALES.includes(choice) ? choice : null;
+  const [, first, ...rest] = location.pathname.split('/');
+  const current = LOCALES.includes(first) ? first : null;
 
-  if (target !== current && LOCALES.includes(current)) {
-    // Same page in the target language: /m1/grammar/ <-> /ru/m1/grammar/.
-    let path = location.pathname;
-    if (current !== DEFAULT_LOCALE) path = path.slice(current.length + 1) || '/';
-    if (target !== DEFAULT_LOCALE) path = `/${target}${path}`;
-    location.replace(path + location.search + location.hash);
+  // Where to go, if anywhere: the root always forwards; language pages only follow a
+  // stored choice. "rest" keeps the page: /en/m1/grammar/ -> /ru/m1/grammar/.
+  let target = null;
+  if (location.pathname === '/') target = `/${chosen ?? browserLocale()}/`;
+  else if (current && chosen && chosen !== current) target = `/${chosen}/${rest.join('/')}`;
+
+  if (target) {
+    location.replace(target + location.search + location.hash);
     return;
   }
 
-  // Remember the language picked with the header switcher.
+  // Remember the language picked with the header switcher (or on the root page).
   document.addEventListener('click', (event) => {
     const link = event.target instanceof Element && event.target.closest('[data-locale-switch]');
     if (link) saveChoice(link.getAttribute('data-locale-switch'));

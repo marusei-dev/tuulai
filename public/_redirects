@@ -1,0 +1,9 @@
+# Permanent redirects for Cloudflare Pages.
+# https://developers.cloudflare.com/pages/configuration/redirects/
+#
+# English pages used to live at the site root; keep those old links working.
+/about /en/about/ 301
+/about/ /en/about/ 301
+/:level/grammar /en/:level/grammar/ 301
+/:level/grammar/ /en/:level/grammar/ 301
+/:level/grammar/* /en/:level/grammar/:splat 301
